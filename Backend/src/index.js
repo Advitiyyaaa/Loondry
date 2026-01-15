@@ -6,7 +6,7 @@ const authRouter = require('./routes/userAuth')
 const slipRouter = require('./routes/slipRoute')
 const complainRouter = require('./routes/complainRoute')
 require('dotenv').config()
-
+require("./jobs/slipCleanup");
 
 const cors = require('cors')
 
