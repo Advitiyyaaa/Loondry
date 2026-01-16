@@ -39,20 +39,6 @@ const userSchema = new Schema({
         enum: ['user','admin'],
         default: 'user'
     },
-    slipCreated:{
-        type:[{
-            type:Schema.Types.ObjectId,
-            ref:'slip',
-        }],
-        default:[]
-    },
-    complains:{
-        type:[{
-            type:Schema.Types.ObjectId,
-            ref:'complain',
-        }],
-        default:[]
-    },
     password:{
         type: String,
         required: true

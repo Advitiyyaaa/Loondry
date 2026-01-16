@@ -112,6 +112,38 @@ const updateSlip = async (req, res) => {
     res.status(400).send("Error: " + err.message);
   }
 };
+// Admin: Get all slips (with optional filters)
+const getAllSlips = async (req, res) => {
+  try {
+    const { status, type } = req.query;
+
+    const filter = {};
+    if (status) filter.status = status;
+    if (type) filter.type = type;
+
+    const limit = parseInt(req.query.limit) || 50;
+    const page = parseInt(req.query.page) || 1;
+
+    const [slips, total] = await Promise.all([
+      Slip.find(filter)
+        .populate("userId", "firstName emailId")
+        .sort({ createdAt: -1 })
+        .skip((page - 1) * limit)
+        .limit(limit),
+      Slip.countDocuments(filter),
+    ]);
+
+    res.status(200).json({
+      data: slips,
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+    });
+  } catch (err) {
+    res.status(500).send("Error: " + err.message);
+  }
+};
 
 const adminApproveSlip = async (req, res) => {
   try {
@@ -165,7 +197,7 @@ const completeSlipWithOtp = async (req, res) => {
       return res.status(400).send("OTP already used");
     }
 
-    if (!otp || slip.otp !== otp) {
+    if (!otp || slip.otp !== String(otp)) {
       return res.status(400).send("Invalid OTP");
     }
 
@@ -206,6 +238,7 @@ module.exports = {
   getMySlips,
   getSlipById,
   updateSlip,
+  getAllSlips,
   adminApproveSlip,
   markReadyForPickup,
   completeSlipWithOtp,

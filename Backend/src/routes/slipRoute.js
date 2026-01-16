@@ -7,6 +7,7 @@ const {
   getSlipById,
   updateSlip,
   deleteSlip,
+  getAllSlips,
   adminApproveSlip,
   completeSlipWithOtp,
   markReadyForPickup,
@@ -26,6 +27,7 @@ slipRouter.delete("/delete/:id", userMiddleware, deleteSlip);
 slipRouter.put("/admin/approve/:id", adminMiddleware, adminApproveSlip);
 slipRouter.put("/admin/ready/:id", adminMiddleware, markReadyForPickup);
 slipRouter.put("/admin/complete/:id", adminMiddleware, completeSlipWithOtp);
+slipRouter.get("/admin/all", adminMiddleware, getAllSlips);
 
 
 module.exports = slipRouter;
