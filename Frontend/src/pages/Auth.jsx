@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-
+import { loginUser, registerUser, clearError } from "../store/authSlice";
 
 const loginSchema = z.object({
   emailId: z
@@ -35,11 +35,12 @@ const registerSchema = z.object({
     .regex(/[!@#$%^&*(),.?":{}|<>]/, "Must contain at least one special character"),
 });
 
-
 export default function Auth() {
   const theme = useSelector((state) => state.theme.theme);
+  const { isAuthenticated, loading, error } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
-  
+  const navigate = useNavigate();
+
   const [showPassword, setShowPassword] = useState(false);
   const [mode, setMode] = useState("login");
 
@@ -55,14 +56,13 @@ export default function Auth() {
   });
 
   const {
-  register,
-  handleSubmit,
-  reset,
-  formState: { errors },
-} = form;
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = form;
 
-
-   useEffect(() => {
+  useEffect(() => {
     if (theme === "dark") {
       document.documentElement.classList.add("dark");
     } else {
@@ -70,28 +70,36 @@ export default function Auth() {
     }
   }, [theme]);
 
-  
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/home");
+    }
+  }, [isAuthenticated, navigate]);
 
   const onSubmit = (data) => {
-    console.log(data);
-    };
+    if (mode === "login") {
+      dispatch(loginUser(data));
+    } else {
+      dispatch(registerUser(data));
+    }
+  };
 
   const toggleMode = () => {
+    dispatch(clearError());
     setMode((p) => (p === "login" ? "register" : "login"));
     reset();
   };
 
-
   return (
-    <div className="min-h-screen bg-white duration-300">
+    <div className="min-h-screen duration-300">
       {/* Theme Toggle */}
       <div className="absolute top-6 right-6">
         <button
-            onClick={() => dispatch(toggleTheme())}
-            className="p-2 rounded-lg bg-white"
+          onClick={() => dispatch(toggleTheme())}
+          className="p-2 rounded-lg"
         >
-            {theme === "light" ? (
-            <svg className="w-5 h-5 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          {theme === "light" ? (
+            <svg className="w-5 h-5 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
             </svg>
           ) : (
@@ -102,65 +110,79 @@ export default function Auth() {
         </button>
       </div>
 
-      {/* Main Content */}
-      <div className="flex items-center justify-center min-h-screen px-4 text-black">
+      <div className="flex items-center justify-center min-h-screen px-3 sm:px-4">
         <div className="w-full max-w-md relative inline-block">
-          {/* Form Card */}
-          <div className="absolute inset-0 translate-x-3 translate-y-3 border-2 border-black bg-black"></div>
-          <div className="relative bg-white border-black border-2 shadow-xl p-8">
+          {/* shadow layer */}
+          <div className={`absolute inset-0 translate-x-3 translate-y-3 border-2 border-black bg-black ${theme === "dark" &&("dark:border-white dark:bg-white")}`}></div>
+
+          {/* card */}
+          <div className={`relative bg-white text-black border-black border-2 shadow-xl p-6 sm:p-8  ${theme === "dark" &&("dark:bg-black dark:text-white dark:border-white")}`}>
             <div className="flex flex-col justify-center items-center mb-6">
-                <p className="text-3xl font-extrabold text-black">{mode === "login" ? "SIGN IN" : "CREATE ACCOUNT"}</p>
-                <span className="mt-2 text-sm font-bold tracking-wide text-gray-500">ENTER YOUR CREDENTIALS</span>
+              <p className="text-2xl sm:text-3xl font-extrabold"> 
+                {mode === "login" ? "SIGN IN" : "CREATE ACCOUNT"}
+              </p>
+              <span className="mt-2 text-sm font-bold tracking-wide text-gray-500 dark:text-gray-400">
+                ENTER YOUR CREDENTIALS
+              </span>
             </div>
+
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-                
               {mode === "register" && (
                 <div className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label className="block text-sm font-bold tracking-wider mb-2">
+                      <label className="block text-sm font-bold tracking-wider mb-2">
                         FIRST NAME
-                        </label>
-                        <input 
+                      </label>
+                      <input
                         {...register("firstName")}
-                        className="w-full px-4 py-2 border-black border-2 bg-white focus:ring-2 focus:ring-black focus:border-transparent outline-none transition-all"
+                        className={`w-full px-4 py-2 border-2 border-black bg-white text-black
+                               focus:ring-2 focus:ring-black outline-none transition-all pr-10
+                                ${theme === "dark" &&("dark:bg-black dark:text-white dark:border-white dark:focus:ring-white")}
+                               `}
                         placeholder="John"
-                        />
-                        {errors.firstName && (
-                        <p className="mt-1 text-xs text-red-500">{errors.firstName}</p>
-                        )}
+                      />
+                      {errors.firstName && (
+                        <p className="mt-1 text-xs text-red-500">{errors.firstName.message}</p>
+                      )}
                     </div>
 
                     <div>
-                        <label className="block text-sm font-bold tracking-wider mb-2">
+                      <label className="block text-sm font-bold tracking-wider mb-2">
                         LAST NAME
-                        </label>
-                        <input
+                      </label>
+                      <input
                         {...register("lastName")}
-                        className="w-full px-4 py-2 border-2 border-black bg-white focus:ring-2 focus:ring-black focus:border-transparent outline-none transition-all"
+                        className={`w-full px-4 py-2 border-2 border-black bg-white text-black
+                               focus:ring-2 focus:ring-black outline-none transition-all pr-10
+                                ${theme === "dark" &&("dark:bg-black dark:text-white dark:border-white dark:focus:ring-white")}
+                               `}
                         placeholder="Doe"
-                        />
+                      />
                     </div>
-                    </div>
+                  </div>
 
-                    <div>
+                  <div>
                     <label className="block text-sm font-bold tracking-wider mb-1">
-                        LAUNDRY BAG NUMBER
+                      LAUNDRY BAG NUMBER
                     </label>
-                    <span className="block mb-1 text-xs text-gray-500 font-semibold">
-                        It is assigned while purchasing the laundry bag.
+                    <span className="block mb-1 text-xs text-gray-500 font-semibold dark:text-gray-400">
+                      It is assigned while purchasing the laundry bag.
                     </span>
                     <input
-                        {...register("bagNo")}
-                        className="w-full px-4 py-2 border-2 border-black bg-white focus:ring-2 focus:ring-black focus:border-transparent outline-none transition-all"
-                        placeholder="e.g. 6277"
+                      {...register("bagNo")}
+                      className={`w-full px-4 py-2 border-2 border-black bg-white text-black
+                               focus:ring-2 focus:ring-black outline-none transition-all pr-10
+                                ${theme === "dark" &&("dark:bg-black dark:text-white dark:border-white dark:focus:ring-white")}
+                               `}
+                      placeholder="e.g. 6277"
                     />
                     {errors.bagNo && (
-                        <p className="mt-1 text-xs text-red-500">{errors.bagNo}</p>
+                      <p className="mt-1 text-xs text-red-500">{errors.bagNo.message}</p>
                     )}
-                    </div>
+                  </div>
                 </div>
-                )}
+              )}
 
               <div>
                 <label className="block text-sm font-bold tracking-wider mb-2">
@@ -168,54 +190,70 @@ export default function Auth() {
                 </label>
                 <input
                   {...register("emailId")}
-                  className="w-full px-4 py-2 border-2 border-black  bg-white  text-black focus:ring-2 focus:ring-black focus:border-transparent outline-none transition-all"
+                  className={`w-full px-4 py-2 border-2 border-black bg-white text-black
+                               focus:ring-2 focus:ring-black outline-none transition-all pr-10
+                                ${theme === "dark" &&("dark:bg-black dark:text-white dark:border-white dark:focus:ring-white")}
+                               `}
                   placeholder="you@bennett.edu.in"
                 />
                 {errors.emailId && (
-                  <p className="mt-1 text-xs text-red-500">{errors.emailId}</p>
+                  <p className="mt-1 text-xs text-red-500">{errors.emailId.message}</p>
                 )}
               </div>
 
               <div>
                 <label className="block text-sm font-bold tracking-wider mb-2">
-                    PASSWORD
+                  PASSWORD
                 </label>
 
                 <div className="relative">
-                    <input
+                  <input
                     type={showPassword ? "text" : "password"}
                     {...register("password")}
-                    className="w-full px-4 py-2 border-2 border-black bg-white text-gray-900 focus:ring-2 focus:ring-black focus:border-transparent outline-none transition-all pr-10"
+                    className={`w-full px-4 py-2 border-2 border-black bg-white text-black
+                               focus:ring-2 focus:ring-black outline-none transition-all pr-10
+                                ${theme === "dark" &&("dark:bg-black dark:text-white dark:border-white dark:focus:ring-white")}
+                               `}
                     placeholder="••••••••"
-                    />
+                  />
 
-                    <button
+                  <button
                     type="button"
                     onClick={() => setShowPassword((p) => !p)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-black opacity-70 hover:opacity-100"
-                    >
+                    className="absolute right-3 top-1/2 -translate-y-1/2 opacity-70 hover:opacity-100"
+                  >
                     {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                    </button>
+                  </button>
                 </div>
 
-  {errors.password && (
-    <p className="mt-1 text-xs text-red-500">{errors.password}</p>
-  )}
-</div>
+                {errors.password && (
+                  <p className="mt-1 text-xs text-red-500">{errors.password.message}</p>
+                )}
+              </div>
 
               <button
                 type="submit"
-                className="w-full bg-black hover:bg-gray-800 text-white font-semibold tracking-wider py-3 transition-colors duration-200 shadow-md hover:shadow-lg"
+                disabled={loading}
+                className={`w-full bg-black text-white hover:bg-gray-800
+                          ${theme === "dark" && "dark:bg-white dark:text-black dark:hover:bg-gray-200"}
+                           font-semibold tracking-wider py-3 transition-colors duration-200 shadow-md hover:shadow-lg`}
               >
                 {mode === "login" ? "SIGN IN" : "CREATE ACCOUNT"}
+                {loading && <span className="ml-2 loading animate-spin"></span>}
               </button>
             </form>
 
-            <div className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
-              {mode === "login" ? "Don't have an account? " : "Already have an account? "}
+            {error && (
+              <p className="mt-4 text-center text-sm text-red-600 font-semibold">
+                {error}
+              </p>
+            )}
+
+            <div className="mt-6 text-center text-sm flex justify-center items-center gap-1">
+              <p className="text-gray-500">{mode === "login" ? "Don't have an account? " : "Already have an account? "}</p>
               <button
                 onClick={toggleMode}
-                className="text-black font-semibold tracking-wider hover:underline"
+                className="font-semibold tracking-wider hover:underline"
               >
                 {mode === "login" ? "SIGN UP" : "SIGN IN"}
               </button>

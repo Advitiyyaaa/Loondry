@@ -30,7 +30,7 @@ const register = async (req,res)=>{
         })
     }
     catch(err){
-        res.status(400).send("Error: "+err.message)
+        res.status(400).send(err.message)
     }
 }
 
@@ -45,11 +45,11 @@ const login = async (req,res)=>{
         }
         const user = await User.findOne({emailId});
         if(!user){
-            throw new Error("Invalid User")
+            throw new Error("WRONG EMAIL OR PASSWORD")
         }
         const match = await bcrypt.compare(password,user.password)
         if(!match)
-            throw new Error("Invalid Credentials")
+            throw new Error("WRONG EMAIL OR PASSWORD")
         const reply = {
             firstName:user.firstName,
             emailId:user.emailId,
@@ -65,7 +65,7 @@ const login = async (req,res)=>{
         })
     }
     catch(err){
-        res.status(401).send("Error: "+err)
+        res.status(401).send(err.message)
     }
 }
 
@@ -81,7 +81,7 @@ const logout = async(req,res)=>{
         res.send("Logged Out Succesfully")
     }
     catch(err){
-        res.status(503).send("Error: "+err)
+        res.status(503).send(err.message)
     }
 }
 
@@ -100,7 +100,7 @@ const adminRegister = async (req,res)=>{
         res.status(201).send("User registered succesfully")
     }
     catch(err){
-        res.status(400).send("Error: "+err.message)
+        res.status(400).send(err.message)
     }
 }
 
@@ -115,7 +115,7 @@ const deleteProfile = async(req,res)=>{
         return res.status(200).send("User deleted")
     }
     catch(err){
-        return res.status(500).send("Internal server error: "+err)
+        return res.status(500).send("Internal server error: "+err.message)
     }
 }
 const bagNoChange = async (req, res) => {
