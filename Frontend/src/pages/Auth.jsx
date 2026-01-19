@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { toggleTheme } from "../store/themeSlice";
-import { Eye, EyeOff } from "lucide-react";
-import { useNavigate } from "react-router";
+import { Eye, EyeOff, ChevronLeft } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -38,8 +38,8 @@ const registerSchema = z.object({
 export default function Auth() {
   const theme = useSelector((state) => state.theme.theme);
   const { isAuthenticated, loading, error } = useSelector((state) => state.auth);
+  const Navigate = useNavigate();
   const dispatch = useDispatch();
-  const navigate = useNavigate();
 
   const [showPassword, setShowPassword] = useState(false);
   const [mode, setMode] = useState("login");
@@ -70,12 +70,6 @@ export default function Auth() {
     }
   }, [theme]);
 
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate("/home");
-    }
-  }, [isAuthenticated, navigate]);
-
   const onSubmit = (data) => {
     if (mode === "login") {
       dispatch(loginUser(data));
@@ -92,6 +86,10 @@ export default function Auth() {
 
   return (
     <div className="min-h-screen duration-300">
+
+      {/* Back Button */}
+      <ChevronLeft className={`absolute top-6 left-6 ${theme === "dark" ? "hover:bg-white hover:text-black" : "hover:bg-black hover:text-white"}`} size="28" onClick={()=>Navigate(-1)}/>
+      
       {/* Theme Toggle */}
       <div className="absolute top-6 right-6">
         <button
@@ -100,12 +98,12 @@ export default function Auth() {
         >
           {theme === "light" ? (
             //moon
-            <svg className="w-5 h-5 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-5 h-5 text-black hover:fill-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
             </svg>
           ) : (
             //sun
-            <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-5 h-5 text-white hover:fill-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
             </svg>
           )}

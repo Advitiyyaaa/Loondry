@@ -1,9 +1,11 @@
 import { Routes, Route, Navigate } from "react-router";
 import { useSelector, useDispatch } from "react-redux";
 import { useEffect } from "react";
-import Home from "./pages/Home";
-import Auth from "./pages/Auth"
 import MainLayout from "./layouts/MainLayout";
+import LandingLayout from "./layouts/LandingLayout";
+import Home from "./pages/Home";
+import Auth from "./pages/Auth";
+import Landing from "./pages/Landing";
 import { checkAuth } from "./store/authSlice";
 
 export default function App() {
@@ -19,8 +21,8 @@ export default function App() {
     <div
       className={`min-h-screen transition-colors duration-300
         ${theme === "dark"
-          ? "bg-black text-white"
-          : "bg-white text-black"
+          ? "bg-black text-white border-white"
+          : "bg-white text-black border-black"
         }`}
     >
       <Routes>
@@ -29,8 +31,14 @@ export default function App() {
         path="/auth"
         element={isAuthenticated ? <Navigate to="/home" /> : <Auth />}
       />
+      
+      {/*pages WITH Footer */}
+      <Route element={<LandingLayout />}>
+        <Route path="/" element={<Landing />} />
+        {/* add more protected pages here */}
+      </Route>
 
-      {/* All pages WITH Navbar */}
+      {/* All pages WITH Navbar and Footer */}
       <Route element={<MainLayout />}>
         <Route path="/home" element={<Home />} />
         {/* add more protected pages here */}
