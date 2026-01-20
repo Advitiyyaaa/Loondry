@@ -6,7 +6,7 @@ import axiosClient from "../utils/axiosClient";
 export default function Home(){
     const theme = useSelector((state) => state.theme.theme);
     const [category, setCategory] = useState("All");
-    const [type, setType] = useState("Regular");
+    const [type, setType] = useState("All");
     const [slips, setSlips] = useState([]);
     const [loading, setLoading] = useState(false);
 
@@ -15,7 +15,6 @@ export default function Home(){
             try {
             setLoading(true);
             const { data } = await axiosClient.get("/slip/my");
-            console.log("API data:", data);
             setSlips(data.slips || data);
             } catch (err) {
             console.error("Failed to fetch slips:", err);
@@ -26,14 +25,24 @@ export default function Home(){
     fetchSlips();
     }, []);
 
+    const filteredSlips = slips.filter((slip) => {
+        const categoryMatch =
+            category === "All" || slip.status === category;
+
+        const typeMatch =
+            type === "All" || slip.type === type;
+
+        return categoryMatch && typeMatch;
+    });
 
     return (
         <div className="w-[96.5%] mx-auto my-2">
-            <div className="flex justify-between">
+            <div className="flex justify-between items-center">
                 <div className="flex gap-3">
                     {/* Category */}
                     <div className="dropdown w-44">
-                        <div
+                        <span className="text-[10px] uppercase opacity-60 ml-2">Slip Status</span>
+                        <div    
                         tabIndex={0}
                         role="button"
                         className={`border-2 py-1 px-2.5 m-1 text-center ${theme === "dark"
@@ -47,10 +56,14 @@ export default function Home(){
                         tabIndex="-1"
                         className={`dropdown-content menu border-2 z-1 w-42 p-2 shadow-sm bg-white text-black ${theme === "dark" && "dark:bg-black dark:text-white"}`}
                         >
-                        {["All", "Slip-Created", "At Clinic", "Ready For Pickup", "Completed"].map(
+                        {["All", "Slip-Created", "At Clinic", "Ready for Pickup", "Completed"].map(
                             (item) => (
                             <li key={item}>
-                                <button onClick={() => setCategory(item)}>{item}</button>
+                                <button onClick={() => {
+                                        setCategory(item);
+                                        document.activeElement?.blur();
+                                    }}
+                                >{item}</button>
                             </li>
                             )
                         )}
@@ -58,6 +71,7 @@ export default function Home(){
                     </div>
                     {/* Type */}
                     <div className="dropdown w-44">
+                        <span className="text-[10px] uppercase opacity-60 ml-2">Slip Type</span>
                         <div
                         tabIndex={0}
                         role="button"
@@ -72,30 +86,41 @@ export default function Home(){
                         tabIndex="-1"
                         className={`dropdown-content menu border-2 z-1 w-42 p-2 shadow-sm bg-white text-black ${theme === "dark" && "dark:bg-black dark:text-white"}`}
                         >
-                        {["Regular", "Paid"].map((item) => (
+                        {["All","Regular", "Paid"].map((item) => (
                             <li key={item}>
-                            <button onClick={() => setType(item)}>{item}</button>
+                            <button onClick={() =>{
+                                    setType(item);
+                                    document.activeElement?.blur();
+                                }}
+                            >{item}</button>
                             </li>
                         ))}
                         </ul>
                     </div>
                 </div>
-                <div className="relative inline-block">
+                <div className="relative inline-block mt-3 group">
                     <div
                         className={`absolute inset-0 translate-x-0.5 translate-y-0.5 border-2 border-black bg-black
                         ${theme === "dark" && "dark:border-white dark:bg-white"}
+                        transition-transform duration-150 group-hover:translate-x-0 group-hover:translate-y-0
                         `}
                     />
-                    <button className={`relative z-9 border-2 px-2 py-2 ${theme === "dark" ? "dark:bg-black dark:text-white" : "bg-white text-black"}`}>
+                    <button
+                        className={`relative border-2 px-2 py-2
+                        transition-transform duration-150
+                        group-hover:translate-x-0.5 group-hover:translate-y-0.5
+                        active:translate-x-0 active:translate-y-0
+                        ${theme === "dark" ? "dark:bg-black dark:text-white" : "bg-white text-black"}
+                        `}
+                    >
                         +Create Slip
                     </button>
                 </div>
-
             </div>
-            <div>
+            <div className="grid grid-cols-2 gap-4 mt-4">
                 <Slip
                     loading={loading}
-                    slips={slips}
+                    slips={filteredSlips}
                     category={category}
                     type={type}
                     theme={theme}
