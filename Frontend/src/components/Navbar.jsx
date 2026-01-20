@@ -23,10 +23,9 @@ export default function Navbar() {
 
     {/* Foreground Navbar */}
     <div
-      className={`relative z-10 grid grid-cols-2 sm:grid-cols-3 items-center
-    border-2 p-3 bg-white text-black
-    ${theme === "dark" && "dark:bg-black dark:text-white dark:border-white"}`}
-    >
+      className={`relative z-10 grid grid-cols-2 sm:grid-cols-3 items-center border-2 p-2 bg-white text-black
+      ${theme === "dark" && "dark:bg-black dark:text-white dark:border-white"}`}
+      >
       {/* Logo */}
       <div className="justify-self-start font-extrabold text-lg flex items-center hover:cursor-pointer" onClick={() => navigate("/home")}>
         <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 819 819">
