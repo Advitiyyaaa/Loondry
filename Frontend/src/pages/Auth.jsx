@@ -110,10 +110,14 @@ export default function Auth() {
         </button>
       </div>
 
-      <div className="flex items-center justify-center min-h-screen px-3 sm:px-4">
+      <div
+        className={`flex justify-center min-h-screen px-3 sm:px-4
+        ${mode === "register" ? "items-start pt-24 sm:items-center sm:pt-0" : "items-center"}
+        `}
+      >
         <div className="w-full max-w-md relative inline-block">
           {/* shadow layer */}
-          <div className={`absolute inset-0 translate-x-3 translate-y-3 border-2 border-black bg-black ${theme === "dark" &&("dark:border-white dark:bg-white")}`}></div>
+          <div className={`absolute inset-0 translate-x-1 sm:translate-x-3 translate-y-1 sm:translate-y-3 border-2 border-black bg-black ${theme === "dark" &&("dark:border-white dark:bg-white")}`}></div>
 
           {/* card */}
           <div className={`relative bg-white text-black border-black border-2 shadow-xl p-6 sm:p-8  ${theme === "dark" &&("dark:bg-black dark:text-white dark:border-white")}`}>
@@ -128,7 +132,7 @@ export default function Auth() {
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
               {mode === "register" && (
-                <div className="space-y-4">
+                <div className="space-y-4 mt-10 sm:mt-0">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-bold tracking-wider mb-2">
@@ -249,8 +253,10 @@ export default function Auth() {
               </p>
             )}
 
-            <div className="mt-6 text-center text-sm flex justify-center items-center gap-1">
-              <p className="text-gray-500">{mode === "login" ? "Don't have an account? " : "Already have an account? "}</p>
+            <div className="mt-4 sm:mt-6 text-center text-xs sm:text-sm flex flex-col sm:flex-row justify-center items-center gap-1 sm:gap-2">
+              <p className="text-gray-500">
+                {mode === "login" ? "Don't have an account?" : "Already have an account?"}
+              </p>
               <button
                 onClick={toggleMode}
                 className="font-semibold tracking-wider hover:underline"

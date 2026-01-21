@@ -1,4 +1,5 @@
 export default function Slip({ loading, slips, theme }) {
+
   const formatDate = (dateStr) => {
     if (!dateStr) return "";
     const d = new Date(dateStr);
@@ -20,7 +21,7 @@ export default function Slip({ loading, slips, theme }) {
   return (
     <>
       {loading &&
-        Array.from({ length: 6 }).map((_, i) => (
+        Array.from({ length: 12 }).map((_, i) => (
           <div
             key={i}
             className={`border-2 p-3 flex justify-between items-center animate-pulse
@@ -28,10 +29,10 @@ export default function Slip({ loading, slips, theme }) {
             `}
           >
             <div className="space-y-2">
-              <div className="h-4 w-32 rounded bg-gray-300 dark:bg-gray-700"></div>
-              <div className="h-3 w-20 rounded bg-gray-200 dark:bg-gray-600"></div>
+              <div className={`h-4 w-32 rounded bg-black ${theme === "dark" && "dark:bg-white"}`}></div>
+              <div className={`h-3 w-20 rounded bg-black ${theme === "dark" && "dark:bg-white"}`}></div>
             </div>
-            <div className="h-3 w-16 rounded bg-gray-200 dark:bg-gray-600"></div>
+            <div className={`h-3 w-16 rounded bg-black ${theme === "dark" && "dark:bg-white"}`}></div>
           </div>
         ))}
 

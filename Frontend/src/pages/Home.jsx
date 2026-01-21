@@ -5,6 +5,7 @@ import axiosClient from "../utils/axiosClient";
 
 export default function Home(){
     const theme = useSelector((state) => state.theme.theme);
+    const { isAuthenticated } = useSelector((state) => state.auth);
     const [category, setCategory] = useState("All");
     const [type, setType] = useState("All");
     const [slips, setSlips] = useState([]);
@@ -36,11 +37,11 @@ export default function Home(){
     });
 
     return (
-        <div className="w-[96.5%] mx-auto my-2">
-            <div className="flex justify-between items-center">
-                <div className="flex gap-3">
+        <div className="w-[96.5%] mx-auto my-2 min-h-screen">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+                <div className="flex flex-col sm:flex-row gap-3">
                     {/* Category */}
-                    <div className="dropdown w-44">
+                    <div className="dropdown w-full sm:w-44">
                         <span className="text-[10px] uppercase opacity-60 ml-2">Slip Status</span>
                         <div    
                         tabIndex={0}
@@ -70,7 +71,7 @@ export default function Home(){
                         </ul>
                     </div>
                     {/* Type */}
-                    <div className="dropdown w-44">
+                    <div className="dropdown w-full sm:w-44">
                         <span className="text-[10px] uppercase opacity-60 ml-2">Slip Type</span>
                         <div
                         tabIndex={0}
@@ -98,7 +99,7 @@ export default function Home(){
                         </ul>
                     </div>
                 </div>
-                <div className="relative inline-block mt-3 group">
+                <div className="relative inline-block mt-1 sm:mt-3 group w-full sm:w-auto">
                     <div
                         className={`absolute inset-0 translate-x-0.5 translate-y-0.5 border-2 border-black bg-black
                         ${theme === "dark" && "dark:border-white dark:bg-white"}
@@ -106,25 +107,28 @@ export default function Home(){
                         `}
                     />
                     <button
-                        className={`relative border-2 px-2 py-2
-                        transition-transform duration-150
-                        group-hover:translate-x-0.5 group-hover:translate-y-0.5
-                        active:translate-x-0 active:translate-y-0
-                        ${theme === "dark" ? "dark:bg-black dark:text-white" : "bg-white text-black"}
+                        className={`relative border-2 px-2 py-2 w-full sm:w-auto
+                            transition-transform duration-150
+                            group-hover:translate-x-0.5 group-hover:translate-y-0.5
+                            active:translate-x-0 active:translate-y-0
+                            ${theme === "dark" ? "dark:bg-black dark:text-white" : "bg-white text-black"}
                         `}
                     >
                         +Create Slip
                     </button>
                 </div>
             </div>
-            <div className="grid grid-cols-2 gap-4 mt-4">
+            <div className={`${isAuthenticated ? "grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4" : "flex justify-center items-center h-75"}`}>
+                {!isAuthenticated ? (
+                    <p className="sm:text-xl opacity-70 col-span-2">Login/Register to view your slips!</p>
+                ) : (
                 <Slip
                     loading={loading}
                     slips={filteredSlips}
                     category={category}
                     type={type}
                     theme={theme}
-                />
+                />)}
             </div>
         </div>
     )
