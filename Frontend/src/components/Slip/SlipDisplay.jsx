@@ -1,4 +1,4 @@
-export default function Slip({ loading, slips, theme }) {
+export default function SlipDisplay({ loading, slips, theme, onOpen}) {
 
   const formatDate = (dateStr) => {
     if (!dateStr) return "";
@@ -44,7 +44,8 @@ export default function Slip({ loading, slips, theme }) {
         slips.map((slip) => (
           <div
             key={slip._id}
-            className={`border-2 p-3 flex justify-between items-center
+            onClick={() => onOpen(slip._id)}
+            className={`border-2 p-3 flex justify-between items-center cursor-pointer
               ${
                 theme === "dark"
                   ? "border-white hover:bg-white hover:text-black"

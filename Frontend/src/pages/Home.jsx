@@ -1,6 +1,7 @@
 import { useDispatch, useSelector } from "react-redux";
 import { useState, useEffect } from "react";
-import Slip from "../components/Slip";
+import SlipDisplay from "../components/Slip/SlipDisplay";
+import SlipModal from "../components/Slip/SlipModal";
 import axiosClient from "../utils/axiosClient";
 
 export default function Home(){
@@ -10,6 +11,9 @@ export default function Home(){
     const [type, setType] = useState("All");
     const [slips, setSlips] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [openSlipId, setOpenSlipId] = useState(null);
+
+    const closeModal = () => setOpenSlipId(null);
 
     useEffect(() => {
         const fetchSlips = async () => {
@@ -37,16 +41,16 @@ export default function Home(){
     });
 
     return (
-        <div className="w-[96.5%] mx-auto my-2 min-h-screen">
+        <div className="w-[89%] sm:w-[96.5%] mx-auto my-2 min-h-screen">
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
-                <div className="flex flex-col sm:flex-row gap-3">
+                <div className="flex gap-3 sm">
                     {/* Category */}
-                    <div className="dropdown w-full sm:w-44">
+                    <div className="dropdown w-1/2 sm:w-44">
                         <span className="text-[10px] uppercase opacity-60 ml-2">Slip Status</span>
                         <div    
                         tabIndex={0}
                         role="button"
-                        className={`border-2 py-1 px-2.5 m-1 text-center ${theme === "dark"
+                        className={`border-3 py-1 px-2.5 m-1 text-center ${theme === "dark"
                             ? "hover:bg-white hover:text-black border-white"
                             : "hover:bg-black hover:text-white border-black"
                         }`}
@@ -71,12 +75,12 @@ export default function Home(){
                         </ul>
                     </div>
                     {/* Type */}
-                    <div className="dropdown w-full sm:w-44">
+                    <div className="dropdown w-1/2 sm:w-44">
                         <span className="text-[10px] uppercase opacity-60 ml-2">Slip Type</span>
                         <div
                         tabIndex={0}
                         role="button"
-                        className={`border-2 py-1 px-2.5 m-1 text-center ${theme === "dark"
+                        className={`border-3 py-1 px-2.5 m-1 text-center ${theme === "dark"
                             ? "hover:bg-white hover:text-black border-white"
                             : "hover:bg-black hover:text-white border-black"
                         }`}
@@ -122,13 +126,19 @@ export default function Home(){
                 {!isAuthenticated ? (
                     <p className="sm:text-xl opacity-70 col-span-2">Login/Register to view your slips!</p>
                 ) : (
-                <Slip
+                <SlipDisplay
                     loading={loading}
                     slips={filteredSlips}
-                    category={category}
-                    type={type}
                     theme={theme}
+                    onOpen={(id) => setOpenSlipId(id)}
                 />)}
+                {openSlipId && (
+                    <SlipModal
+                        slipId={openSlipId}
+                        closeModal={() => setOpenSlipId(null)}
+                        theme={theme}
+                    />
+                )}
             </div>
         </div>
     )

@@ -16,14 +16,14 @@ export default function Navbar() {
       <div className="relative">
     {/* Shadow Layer */}
     <div
-      className={`absolute inset-0 translate-x-3 translate-y-3 border-2 border-black bg-black
+      className={`absolute inset-0 translate-x-2 translate-y-2 sm:translate-x-3 sm:translate-y-3 border-2 border-black bg-black
         ${theme === "dark" && "dark:border-white dark:bg-white"}
       `}
     />
 
     {/* Foreground Navbar */}
     <div
-      className={`relative z-10 grid grid-cols-2 sm:grid-cols-3 items-center border-2 p-2 bg-white text-black
+      className={`relative z-10 grid grid-cols-2 md:grid-cols-3 items-center border-2 p-2 bg-white text-black
       ${theme === "dark" && "dark:bg-black dark:text-white dark:border-white"}`}
       >
       {/* Logo */}
@@ -35,9 +35,9 @@ export default function Navbar() {
         <p>Loondry</p>
       </div>
       {/* Nav */}
-      <div className="hidden sm:flex justify-self-center gap-6 items-center">
+      <div className="hidden md:flex justify-self-center gap-6 items-center">
         <button className="hover:text-gray-400 hover:cursor-pointer">Home</button>
-        <button className="hover:text-gray-400 hover:cursor-pointer">Create-Slip</button>
+        <button className="hover:text-gray-400 hover:cursor-pointer whitespace-nowrap">Create-Slip</button>
         <button className="hover:text-gray-400 hover:cursor-pointer">Complaints</button>
         <button className="hover:text-gray-400 hover:cursor-pointer">About</button>
       </div>
@@ -102,6 +102,8 @@ export default function Navbar() {
           <ul tabIndex="-1" className={`dropdown-content menu border-2 z-1 w-42 p-2 shadow-sm bg-white text-black ${theme === "dark" && "dark:bg-black dark:text-white"}`}>
             <li><button>Profile</button></li>
             <li><button>Settings</button></li>
+            <li><button className="md:hidden">Complaints</button></li>
+            <li><button className="md:hidden">About</button></li>
             {isAuthenticated &&(
               <li>
                 <button onClick={()=>{dispatch(logoutUser());
