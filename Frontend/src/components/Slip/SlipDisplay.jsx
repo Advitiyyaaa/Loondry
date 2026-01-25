@@ -20,22 +20,6 @@ export default function SlipDisplay({ loading, slips, theme, onOpen}) {
 
   return (
     <>
-      {loading &&
-        Array.from({ length: 12 }).map((_, i) => (
-          <div
-            key={i}
-            className={`border-2 p-3 flex justify-between items-center animate-pulse
-              ${theme === "dark" ? "border-white" : "border-black"}
-            `}
-          >
-            <div className="space-y-2">
-              <div className={`h-4 w-32 rounded bg-black ${theme === "dark" && "dark:bg-white"}`}></div>
-              <div className={`h-3 w-20 rounded bg-black ${theme === "dark" && "dark:bg-white"}`}></div>
-            </div>
-            <div className={`h-3 w-16 rounded bg-black ${theme === "dark" && "dark:bg-white"}`}></div>
-          </div>
-        ))}
-
       {!loading && slips.length === 0 && (
         <p className="text-sm opacity-70 col-span-2">No slips found.</p>
       )}

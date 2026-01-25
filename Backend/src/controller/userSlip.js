@@ -6,7 +6,10 @@ const generateOTP = () => {
 
 const createSlip = async (req, res) => {
   try {
-    const { type, clothes, paidItems } = req.body;
+    let { type, clothes, paidItems } = req.body;
+
+    // Apply default manually
+    type = type || "Regular";
 
     // Regular slip rule: previous must be completed
     if (type === "Regular") {
@@ -33,6 +36,7 @@ const createSlip = async (req, res) => {
 
     const slip = await Slip.create({
       ...req.body,
+      type,                // ensure normalized value is used
       userId: req.result._id,
       otp: generateOTP(),
     });
@@ -43,6 +47,21 @@ const createSlip = async (req, res) => {
   }
 };
 
+const getQueueCount = async (req, res) => {
+  try {
+    const count = await Slip.countDocuments({
+      status: "Slip-Created",
+    });
+
+    res.json({
+      status: "ok",
+      slipCreatedCount: count,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to fetch queue count" });
+  }
+};
 
 
 const getMySlips = async (req, res) => {
@@ -109,7 +128,11 @@ const updateSlip = async (req, res) => {
 
     res.status(200).json(slip);
   } catch (err) {
-    res.status(400).send("Error: " + err.message);
+      if (err.name === "ValidationError") {
+      const messages = Object.values(err.errors).map(e => e.message);
+      return res.status(400).send(messages.join(", "));
+    }
+    res.status(400).send(err.message);
   }
 };
 // Admin: Get all slips (with optional filters)
@@ -218,7 +241,7 @@ const deleteSlip = async (req, res) => {
     const slip = await Slip.findById(req.params.id);
     if (!slip) return res.status(404).send("Slip not found");
 
-    if (slip.status !== "Slip-Created") {
+    if (slip.status === "At Clinic" || slip.status === "Ready for Pickup") {
       return res.status(403).send("Cannot delete approved slip");
     }
 
@@ -233,8 +256,10 @@ const deleteSlip = async (req, res) => {
   }
 };
 
+
 module.exports = {
   createSlip,
+  getQueueCount,
   getMySlips,
   getSlipById,
   updateSlip,

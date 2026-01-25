@@ -3,6 +3,7 @@ const slipRouter = express.Router();
 
 const {
   createSlip,
+  getQueueCount,
   getMySlips,
   getSlipById,
   updateSlip,
@@ -18,6 +19,7 @@ const adminMiddleware = require("../middleware/adminMiddleware");
 
 // User routes
 slipRouter.post("/create", userMiddleware, createSlip);
+slipRouter.get("/queue-count", getQueueCount);
 slipRouter.get("/my", userMiddleware, getMySlips);
 slipRouter.get("/:id", userMiddleware, getSlipById);
 slipRouter.put("/update/:id", userMiddleware, updateSlip);
