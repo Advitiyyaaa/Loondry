@@ -3,7 +3,7 @@ import axiosClient from "../../utils/axiosClient";
 import RegularSlip from "./RegularSlip";
 import PaidSlip from "./PaidSlip";
 
-export default function SlipModal({ slipId, closeModal, theme, fetchedSlips }) {
+export default function SlipModal({ slipId, closeModal, theme, fetchedSlips, queue }) {
     const [slip, setSlip] = useState(null);
     const [loading, setLoading] = useState(true);
     const [localClothes, setLocalClothes] = useState({});
@@ -65,13 +65,11 @@ export default function SlipModal({ slipId, closeModal, theme, fetchedSlips }) {
     const handleDelete = async () => {
     try {
         await axiosClient.delete(`/slip/delete/${slipId}`);
-
-        // Refresh list in Home
         await fetchedSlips();
-
-        // Close modal
+        await queue();
         closeModal();
-    } catch (err) {
+    } 
+    catch (err) {
         const msg =
         typeof err?.response?.data === "string"
             ? err.response.data
@@ -80,9 +78,19 @@ export default function SlipModal({ slipId, closeModal, theme, fetchedSlips }) {
     }
     };
 
+    const formatDateOnly = (dateStr) => {
+        if (!dateStr) return "";
+        const d = new Date(dateStr);
+        if (isNaN(d.getTime())) return "";
 
+        return d.toLocaleDateString("en-IN", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+        });
+    };
 
-    const formatDate = (dateStr) => {
+    const formatDayAndDate = (dateStr) => {
         if (!dateStr) return "";
         const d = new Date(dateStr);
         if (isNaN(d.getTime())) return "";
@@ -127,12 +135,15 @@ export default function SlipModal({ slipId, closeModal, theme, fetchedSlips }) {
             {loading ? (
                 <div className="h-6 w-6 rounded-full border-2 border-white border-t-transparent animate-spin"></div>
             ) : (
-            <div className={`border-2 p-3 w-[28%] max-w-md ${theme === "dark"? "bg-black border-white text-white" : "bg-white border-black text-black"}`}>
+            <div className={`border-2 p-3 w-[80%] lg:w-[28%] max-w-md ${theme === "dark"? "bg-black border-white text-white" : "bg-white border-black text-black"}`}>
                 <div className="flex justify-between items-center p-2">
-                    <p className="font-bold">{formatDate(slip?.createdAt)}</p>
+                    <p className="font-semibold tracking-tighter sm:tracking-normal sm:font-bold">
+                        <span className="sm:hidden">{formatDateOnly(slip?.createdAt)}</span>
+                        <span className="hidden sm:inline">{formatDayAndDate(slip?.createdAt)}</span>
+                    </p>
                     <div className="flex gap-4">
-                        <p className="text-sm tracking-wider font-semibold">{slip?.status}</p>
-                        <p className="text-sm tracking-wider font-semibold">{slip?.type}</p>
+                        <p className="text-sm tracking-tighter sm:tracking-wider sm:font-semibold">{slip?.status}</p>
+                        <p className="text-sm tracking-tighter sm:tracking-wider sm:font-semibold">{slip?.type}</p>
                     </div>
                 </div>
                     
@@ -150,12 +161,12 @@ export default function SlipModal({ slipId, closeModal, theme, fetchedSlips }) {
 
                 </div>
                 {error && (
-                    <div className={`w-[96%] mx-auto mt-2 border border-dashed text-red-600 ${theme === "dark" ? "border-white" : "border-black"} px-3 py-2 text-xs tracking-wide`}>
+                    <div className={`w-[96%] mx-auto mt-2 border border-dashed border-red-600 text-red-600 px-3 py-2 text-xs tracking-wide`}>
                         {error}
                     </div>
                 )}
                 {success && !error && (
-                    <div className={`w-[96%] mx-auto border mt-2 border-dashed text-green-600 ${theme === "dark" ? "border-white" : "border-black"} px-3 py-2 text-xs tracking-wide`}>
+                    <div className={`w-[96%] mx-auto border mt-2 border-dashed border-green-600 text-green-600 px-3 py-2 text-xs tracking-wide`}>
                         Slip Updated Successfully
                     </div>
                 )}
@@ -170,14 +181,14 @@ export default function SlipModal({ slipId, closeModal, theme, fetchedSlips }) {
                     </div>
                 )}
 
-                <div className="flex justify-between mt-3 items-center px-2">
+                <div className={`flex justify-between mt-3 items-center px-2 ${slip?.type!=="Regular" && slip?.status!=="Slip-Created" && "w-[97.5%] mx-auto"}`}>
                     <div className="flex gap-2"> 
                         {(slip?.status !== "At Clinic" && slip?.status !== "Ready for Pickup") && (
                             <div className="dropdown dropdown-top">
                                 <div
                                     tabIndex={0}
                                     role="button"
-                                    className="border-2 px-3 py-1 text-sm hover:bg-red-600"
+                                    className="border-2 px-3 py-1 text-xs hover:bg-red-600"
                                 >
                                     Delete
                                 </div>
@@ -216,7 +227,7 @@ export default function SlipModal({ slipId, closeModal, theme, fetchedSlips }) {
                             <button
                             onClick={handleUpdate}
                             disabled={updating || !hasChanges}
-                            className="border-2 px-3 py-1 text-sm hover:bg-blue-700"
+                            className="border-2 px-3 py-1 text-xs hover:bg-blue-700"
                             >
                                 {updating ? "Updating..." : "Update"}
                             </button>
@@ -224,7 +235,7 @@ export default function SlipModal({ slipId, closeModal, theme, fetchedSlips }) {
                     </div>
                     <button
                         onClick={closeModal}
-                        className={`border-2 px-3 py-1 hover:bg-black hover:text-white ${theme==='dark' && ("dark:hover:bg-white dark:hover:text-black")}`}
+                        className={`border-2 px-3 py-1 hover:bg-black text-xs hover:text-white ${theme==='dark' && ("dark:hover:bg-white dark:hover:text-black")}`}
                     >
                         Close
                     </button>

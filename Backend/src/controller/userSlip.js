@@ -8,44 +8,79 @@ const createSlip = async (req, res) => {
   try {
     let { type, clothes, paidItems } = req.body;
 
-    // Apply default manually
     type = type || "Regular";
 
     // Regular slip rule: previous must be completed
     if (type === "Regular") {
-      const lastSlip = await Slip.findOne({ userId: req.result._id })
-        .sort({ createdAt: -1 });
+      const lastRegularSlip = await Slip.findOne({
+        userId: req.result._id,
+        type: "Regular",
+      }).sort({ createdAt: -1 });
 
-      if (lastSlip && lastSlip.status !== "Completed") {
+      if (lastRegularSlip && lastRegularSlip.status !== "Completed") {
         return res
           .status(403)
           .send(
-            "You can create a Regular slip only after your previous slip is completed"
+            "You can create a Regular slip only after your previous Regular slip is completed"
           );
       }
 
       if (!clothes) {
         return res.status(400).send("Clothes are required for Regular slip");
       }
+
+      const total = Object.values(clothes).reduce(
+        (sum, v) => sum + (Number(v) || 0),
+        0
+      );
+
+      if (total === 0) {
+        return res.status(400).send("Add at least one clothing item");
+      }
     }
 
     // Paid slip validation
-    if (type === "Paid" && !paidItems) {
-      return res.status(400).send("Paid items are required for Paid slip");
+    if (type === "Paid") {
+      if (!paidItems) {
+        return res.status(400).send("Paid items are required for Paid slip");
+      }
+
+      const baseTotal =
+        (paidItems.jacket || 0) +
+        (paidItems.blanket || 0) +
+        (paidItems.comforter || 0) +
+        (paidItems.hoodie || 0) +
+        (paidItems.sweater || 0);
+
+      const customTotal = Array.isArray(paidItems.customItems)
+        ? paidItems.customItems.reduce((s, i) => s + (i.qty || 0), 0)
+        : 0;
+
+      if (baseTotal + customTotal === 0) {
+        return res.status(400).send("Add at least one paid item");
+      }
     }
 
     const slip = await Slip.create({
       ...req.body,
-      type,                // ensure normalized value is used
+      type,
       userId: req.result._id,
       otp: generateOTP(),
     });
 
     res.status(201).json(slip);
   } catch (err) {
+    if (
+      err.name === "ValidationError" &&
+      err.message.includes("customItems") &&
+      err.message.includes("name")
+    ) {
+      return res.status(400).send("Item name is required");
+    }
     res.status(400).send("Error: " + err.message);
   }
 };
+
 
 const getQueueCount = async (req, res) => {
   try {
@@ -149,7 +184,7 @@ const getAllSlips = async (req, res) => {
 
     const [slips, total] = await Promise.all([
       Slip.find(filter)
-        .populate("userId", "firstName emailId")
+        .populate("userId", "firstName emailId bagNo")
         .sort({ createdAt: -1 })
         .skip((page - 1) * limit)
         .limit(limit),

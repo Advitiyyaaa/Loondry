@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import SlipDisplay from "../components/Slip/SlipDisplay";
 import SlipModal from "../components/Slip/SlipModal";
 import { RotateCcw } from 'lucide-react';
+import CreateSlipModal from "../components/Slip/CreateSlipModal";
 import axiosClient from "../utils/axiosClient";
 
 export default function Home(){
@@ -15,7 +16,7 @@ export default function Home(){
     const [openSlipId, setOpenSlipId] = useState(null);
     const [queueCount, setQueueCount] = useState(0);
     const [queueLoading, setQueueLoading] = useState(false);
-
+    const [openCreate, setOpenCreate] = useState(false);
 
     const closeModal = () => setOpenSlipId(null);
 
@@ -144,6 +145,7 @@ export default function Home(){
                         `}
                     />
                     <button
+                        onClick={() => setOpenCreate(true)}
                         className={`relative border-2 px-2 py-2 w-full sm:w-auto
                             transition-transform duration-150
                             group-hover:translate-x-0.5 group-hover:translate-y-0.5
@@ -178,6 +180,17 @@ export default function Home(){
                         closeModal={() => setOpenSlipId(null)}
                         theme={theme}
                         fetchedSlips={fetchSlips}
+                        queue={fetchQueueCount}
+                    />
+                )}
+                {openCreate && (
+                    <CreateSlipModal
+                        theme={theme}
+                        closeModal={() => setOpenCreate(false)}
+                        onCreated={async () => {
+                            await fetchSlips();
+                            await fetchQueueCount();
+                        }}
                     />
                 )}
             </div>
