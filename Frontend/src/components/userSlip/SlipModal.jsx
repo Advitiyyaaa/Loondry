@@ -63,19 +63,19 @@ export default function SlipModal({ slipId, closeModal, theme, fetchedSlips, que
     };
 
     const handleDelete = async () => {
-    try {
-        await axiosClient.delete(`/slip/delete/${slipId}`);
-        await fetchedSlips();
-        await queue();
-        closeModal();
-    } 
-    catch (err) {
-        const msg =
-        typeof err?.response?.data === "string"
-            ? err.response.data
-            : err?.response?.data?.message || "Failed to delete slip";
-        setError(msg);
-    }
+        try {
+            await axiosClient.delete(`/slip/delete/${slipId}`);
+            await fetchedSlips();
+            await queue();
+            closeModal();
+        } 
+        catch (err) {
+            const msg =
+            typeof err?.response?.data === "string"
+                ? err.response.data
+                : err?.response?.data?.message || "Failed to delete slip";
+            setError(msg);
+        }
     };
 
     const formatDateOnly = (dateStr) => {
@@ -136,17 +136,28 @@ export default function SlipModal({ slipId, closeModal, theme, fetchedSlips, que
                 <div className="h-6 w-6 rounded-full border-2 border-white border-t-transparent animate-spin"></div>
             ) : (
             <div className={`border-2 p-3 w-[80%] lg:w-[28%] max-w-md ${theme === "dark"? "bg-black border-white text-white" : "bg-white border-black text-black"}`}>
-                <div className="flex justify-between items-center p-2">
-                    <p className="font-semibold tracking-tighter sm:tracking-normal sm:font-bold">
-                        <span className="sm:hidden">{formatDateOnly(slip?.createdAt)}</span>
-                        <span className="hidden sm:inline">{formatDayAndDate(slip?.createdAt)}</span>
-                    </p>
-                    <div className="flex gap-4">
-                        <p className="text-sm tracking-tighter sm:tracking-wider sm:font-semibold">{slip?.status}</p>
-                        <p className="text-sm tracking-tighter sm:tracking-wider sm:font-semibold">{slip?.type}</p>
+                <div className="flex flex-col">    
+                    <div className="flex justify-between items-center p-2">
+                        <p className="font-semibold tracking-tighter sm:tracking-normal sm:font-bold">
+                            <span className="sm:hidden">{formatDateOnly(slip?.createdAt)}</span>
+                            <span className="hidden sm:inline">{formatDayAndDate(slip?.createdAt)}</span>
+                        </p>
+                        <div className="flex gap-4">
+                            <p className="text-sm tracking-tighter sm:tracking-wider sm:font-semibold">{slip?.status}</p>
+                            <p className="text-sm tracking-tighter sm:tracking-wider sm:font-semibold">{slip?.type}</p>
+                        </div>
                     </div>
-                </div>
-                    
+                    {slip?.status === "Completed" && slip?.completedAt && (
+                        <div className="px-2 pb-1">
+                            <span className="text-sm sm:hidden">
+                                Completed: {formatDateOnly(slip.completedAt)}
+                            </span>
+                            <span className="text-sm hidden sm:inline">
+                                Completed On: {formatDayAndDate(slip.completedAt)}
+                            </span>
+                        </div>
+                    )}
+                </div>    
                 <div className="px-2 text-sm">
                     {slip?.type === "Regular" && (
                         <RegularSlip

@@ -131,6 +131,9 @@ const slipSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    completedAt: {
+      type: Date,
+    }
   },
   { timestamps: true }
 );

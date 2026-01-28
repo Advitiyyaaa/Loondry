@@ -69,15 +69,21 @@ const createSlip = async (req, res) => {
     });
 
     res.status(201).json(slip);
-  } catch (err) {
-    if (
-      err.name === "ValidationError" &&
-      err.message.includes("customItems") &&
-      err.message.includes("name")
-    ) {
-      return res.status(400).send("Item name is required");
+  } 
+  catch (err) {
+    if (err.name === "ValidationError") {
+      const firstKey = Object.keys(err.errors)[0];
+      const msg = err.errors[firstKey]?.message;
+
+      // Custom wording for specific cases
+      if (firstKey.includes("customItems") && firstKey.includes("name")) {
+        return res.status(400).send("Item name is required");
+      }
+
+      return res.status(400).send(msg || "Validation failed");
     }
-    res.status(400).send("Error: " + err.message);
+
+    res.status(400).send(err.message);
   }
 };
 
@@ -212,8 +218,10 @@ const adminApproveSlip = async (req, res) => {
       return res.status(400).send("Slip already processed");
     }
 
+    const { clinicNote } = req.body || {};
+
     slip.status = "At Clinic";
-    if (req.body.clinicNote) slip.clinicNote = req.body.clinicNote;
+    if (clinicNote) slip.clinicNote = clinicNote;
 
     await slip.save();
     res.status(200).json(slip);
@@ -261,6 +269,7 @@ const completeSlipWithOtp = async (req, res) => {
 
     slip.otpUsed = true;
     slip.status = "Completed";
+    slip.completedAt = new Date();
     await slip.save();
 
     res.status(200).send("Laundry handed over successfully");
@@ -291,6 +300,23 @@ const deleteSlip = async (req, res) => {
   }
 };
 
+// Admin – Reject (Delete) Slip
+const adminRejectSlip = async (req, res) => {
+  try {
+    const slip = await Slip.findById(req.params.id);
+    if (!slip) return res.status(404).send("Slip not found");
+
+    if (slip.status !== "Slip-Created") {
+      return res.status(400).send("Only Slip-Created slips can be rejected");
+    }
+
+    await Slip.findByIdAndDelete(req.params.id);
+
+    res.status(200).json({ message: "Slip rejected and deleted" });
+  } catch (err) {
+    res.status(500).send("Error: " + err.message);
+  }
+};
 
 module.exports = {
   createSlip,
@@ -303,5 +329,6 @@ module.exports = {
   markReadyForPickup,
   completeSlipWithOtp,
   deleteSlip,
+  adminRejectSlip,
 };
 

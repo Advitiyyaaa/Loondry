@@ -1,0 +1,106 @@
+export default function AtClinic({ slip, theme, onReady, error }) {
+    const total =
+        slip.type === "Regular"
+        ? Object.values(slip.clothes || {}).reduce((sum, v) => sum + (v || 0), 0)
+        : (() => {
+            const base = Object.entries(slip.paidItems || {})
+                .filter(([k]) => k !== "customItems")
+                .reduce((sum, [, v]) => sum + (v || 0), 0);
+
+            const custom = (slip.paidItems?.customItems || []).reduce(
+                (sum, item) => sum + (item.qty || 0),
+                0
+            );
+
+            return base + custom;
+            })();
+
+    const formatDateOnly = (dateStr) => {
+        if (!dateStr) return "";
+        const d = new Date(dateStr);
+        if (isNaN(d.getTime())) return "";
+
+        return d.toLocaleDateString("en-IN", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+        });
+    };
+
+    return (
+        <div className="border-2 p-3 text-xs space-y-2 h-80 flex flex-col">
+        <div>
+            <div className="flex flex-col">
+                <div className="flex items-center justify-between">
+                    <p className="font-semibold tracking-wide">
+                    #{slip?.userId?.bagNo}
+                    </p>
+                    <p className="text-[12px] ">{formatDateOnly(slip?.createdAt)}</p>
+                </div>
+                <div className="flex items-center justify-between">
+                    <p className="text-[12px] opacity-80">
+                        {slip?.userId?.emailId}
+                    </p>
+                    <p className="text-[12px] opacity-80">
+                        {slip?.type}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div className="flex-1 overflow-y-auto border-t pt-2">
+            {/* Regular clothes */}
+            {slip.type === "Regular" && (
+            <div className="grid grid-cols-2 gap-x-3 gap-y-1 pt-2">
+                {Object.entries(slip.clothes || {}).map(([k, v]) =>
+                v > 0 ? (
+                    <div key={k} className="flex justify-between w-[85%]">
+                    <span className="opacity-70">{k}</span>
+                    <span>{v}</span>
+                    </div>
+                ) : null
+                )}
+            </div>
+            )}
+
+            {/* Paid items */}
+            {slip.type === "Paid" && (
+            <div className="gap-x-3 gap-y-1 pt-2">
+                {Object.entries(slip.paidItems || {}).map(([k, v]) => {
+                if (k === "customItems") {
+                    return v?.map((item, i) => (
+                    <div key={i} className="flex justify-between col-span-2">
+                        <span className="opacity-70">{item.name}</span>
+                        <span>{item.qty}</span>
+                    </div>
+                    ));
+                }
+
+                return v > 0 ? (
+                    <div key={k} className="flex justify-between">
+                    <span className="opacity-70">{k}</span>
+                    <span>{v}</span>
+                    </div>
+                ) : null;
+                })}
+            </div>
+            )}
+        </div>
+
+        <div className="border border-dashed px-1 mt-1 py-1 flex justify-between font-semibold">
+            <span>Total</span>
+            <span>{total}</span>
+        </div>
+
+        {/* Only one action in AtClinic */}
+        <div className="flex justify-end mt-auto">
+            <button
+            onClick={() => onReady(slip._id)}
+            className="border-2 px-3 py-1 hover:bg-blue-700"
+            >
+            Ready
+            </button>
+        </div>
+        </div>
+    );
+}

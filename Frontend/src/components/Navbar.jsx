@@ -36,8 +36,16 @@ export default function Navbar() {
       </div>
       {/* Nav */}
       <div className="hidden md:flex justify-self-center gap-6 items-center">
-        <button className="hover:text-gray-400 hover:cursor-pointer">Home</button>
-        <button className="hover:text-gray-400 hover:cursor-pointer whitespace-nowrap">Create-Slip</button>
+        <button onClick={() => navigate("/home")} className="hover:text-gray-400 hover:cursor-pointer">Home</button>
+        {user?.role === "admin" ? 
+          <button 
+            className="hover:text-gray-400 hover:cursor-pointer whitespace-nowrap"
+            onClick={() => navigate("/admin")}
+          >
+            Admin Dashboard
+          </button>
+          :
+          <button className="hover:text-gray-400 hover:cursor-pointer whitespace-nowrap">Create-Slip</button>}
         <button className="hover:text-gray-400 hover:cursor-pointer">Complaints</button>
         <button className="hover:text-gray-400 hover:cursor-pointer">About</button>
       </div>

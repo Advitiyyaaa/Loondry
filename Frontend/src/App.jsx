@@ -6,6 +6,7 @@ import LandingLayout from "./layouts/LandingLayout";
 import Home from "./pages/Home";
 import Auth from "./pages/Auth";
 import Landing from "./pages/Landing";
+import AdminDashboard from "./pages/AdminDashboard";
 import { checkAuth } from "./store/authSlice";
 
 export default function App() {
@@ -41,6 +42,7 @@ export default function App() {
       {/* All pages WITH Navbar and Footer */}
       <Route element={<MainLayout />}>
         <Route path="/home" element={<Home />} />
+        <Route path="/admin" element={<AdminDashboard />} />
         {/* add more protected pages here */}
       </Route>
     </Routes>

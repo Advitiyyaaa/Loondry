@@ -12,6 +12,7 @@ const {
   adminApproveSlip,
   completeSlipWithOtp,
   markReadyForPickup,
+  adminRejectSlip,
 } = require("../controller/userSlip");
 
 const userMiddleware = require("../middleware/userMiddleware");
@@ -26,10 +27,11 @@ slipRouter.put("/update/:id", userMiddleware, updateSlip);
 slipRouter.delete("/delete/:id", userMiddleware, deleteSlip);
 
 // Admin routes
+slipRouter.get("/admin/all", adminMiddleware, getAllSlips);
 slipRouter.put("/admin/approve/:id", adminMiddleware, adminApproveSlip);
 slipRouter.put("/admin/ready/:id", adminMiddleware, markReadyForPickup);
 slipRouter.put("/admin/complete/:id", adminMiddleware, completeSlipWithOtp);
-slipRouter.get("/admin/all", adminMiddleware, getAllSlips);
+slipRouter.delete("/admin/reject/:id", adminMiddleware, adminRejectSlip);
 
 
 module.exports = slipRouter;
