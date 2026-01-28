@@ -5,6 +5,7 @@
     import { RotateCcw } from 'lucide-react';
     import CreateSlipModal from "../components/userSlip/CreateSlipModal";
     import axiosClient from "../utils/axiosClient";
+    import { useLocation } from "react-router";
     import UserHome from "../components/Home/UserHome";
     import AdminHome from "../components/Home/AdminHome";
 
@@ -19,6 +20,15 @@
         const [queueCount, setQueueCount] = useState(0);
         const [queueLoading, setQueueLoading] = useState(false);
         const [openCreate, setOpenCreate] = useState(false);
+
+        const location = useLocation();
+
+        useEffect(() => {
+            const id = location.state?.openSlipId;
+            if (id) {
+                setOpenSlipId(id);
+            }
+        }, [location.state]);
 
         const closeModal = () => setOpenSlipId(null);
 

@@ -46,8 +46,8 @@ export default function Navbar() {
           </button>
           :
           <button className="hover:text-gray-400 hover:cursor-pointer whitespace-nowrap">Create-Slip</button>}
-        <button className="hover:text-gray-400 hover:cursor-pointer">Complaints</button>
-        <button className="hover:text-gray-400 hover:cursor-pointer">About</button>
+        <button onClick={() => navigate("/complaints")} className="hover:text-gray-400 hover:cursor-pointer">Complaints</button>
+        <button onClick={() => navigate("/")} className="hover:text-gray-400 hover:cursor-pointer">About</button>
       </div>
       
       {/* Theme+User+Social*/}

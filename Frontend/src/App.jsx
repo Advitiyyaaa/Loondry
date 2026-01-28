@@ -7,6 +7,8 @@ import Home from "./pages/Home";
 import Auth from "./pages/Auth";
 import Landing from "./pages/Landing";
 import AdminDashboard from "./pages/AdminDashboard";
+import CreateComplain from "./pages/CreateComplain";
+import ComplainPage from "./pages/ComplainPage";
 import { checkAuth } from "./store/authSlice";
 
 export default function App() {
@@ -43,6 +45,8 @@ export default function App() {
       <Route element={<MainLayout />}>
         <Route path="/home" element={<Home />} />
         <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/complain/new" element={<CreateComplain />} />
+        <Route path="/complaints" element={<ComplainPage />} />
         {/* add more protected pages here */}
       </Route>
     </Routes>

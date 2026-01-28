@@ -1,4 +1,5 @@
 const Complain = require("../models/complain");
+const Slip = require("../models/slip");
 
 const createComplain = async (req, res) => {
   try {
@@ -6,6 +7,45 @@ const createComplain = async (req, res) => {
 
     if (!userNote) {
       return res.status(400).send("Complaint note is required");
+    }
+
+    if (slipId) {
+      const slip = await Slip.findById(slipId);
+
+      if (!slip) {
+        return res.status(404).send("Slip not found");
+      }
+
+      if (slip.userId.toString() !== req.result._id.toString()) {
+        return res.status(403).send("Forbidden");
+      }
+
+      if (slip.status !== "Completed" || !slip.completedAt) {
+        return res
+          .status(400)
+          .send("Complaints can only be raised for completed slips");
+      }
+
+      const TWO_DAYS = 2 * 24 * 60 * 60 * 1000;
+      const age = Date.now() - new Date(slip.completedAt).getTime();
+
+      if (age > TWO_DAYS) {
+        return res
+          .status(403)
+          .send("Complaints can only be raised within 2 days of completion");
+      }
+
+      const existing = await Complain.findOne({
+        userId: req.result._id,
+        slipId,
+        resolved: false,
+      });
+
+      if (existing) {
+        return res
+          .status(403)
+          .send("You already have an active complaint for this slip");
+      }
     }
 
     const complain = await Complain.create({

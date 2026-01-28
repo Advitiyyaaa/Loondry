@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router";
 import axiosClient from "../../utils/axiosClient";
 import RegularSlip from "./RegularSlip";
 import PaidSlip from "./PaidSlip";
@@ -10,6 +11,7 @@ export default function SlipModal({ slipId, closeModal, theme, fetchedSlips, que
     const [updating, setUpdating] = useState(false);
     const [success, setSuccess] = useState(false);
     const [error, setError] = useState("");
+    const navigate = useNavigate()
 
     useEffect(() => {
         if (slip?.clothes) {
@@ -107,6 +109,16 @@ export default function SlipModal({ slipId, closeModal, theme, fetchedSlips, que
 
         return `${parts[0]}, ${parts[1]} ${parts[2]} ${parts[3]}`;
     };
+
+    const canRaiseComplaint = () => {
+        if (!slip || slip.status !== "Completed" || !slip.completedAt) return false;
+
+        const TWO_DAYS = 2 * 24 * 60 * 60 * 1000;
+        const age = Date.now() - new Date(slip.completedAt).getTime();
+
+        return age <= TWO_DAYS;
+    };
+
 
     const increment = (key) => {
         setSuccess(false);
@@ -233,7 +245,15 @@ export default function SlipModal({ slipId, closeModal, theme, fetchedSlips, que
                                 </div>
                             </div>
                         )}   
-                        
+                        {canRaiseComplaint() && (
+                            <button
+                                onClick={() => navigate(`/complain/new?slip=${slip._id}`)}
+                                className="border-2 px-3 py-1 text-xs hover:bg-yellow-500"
+                            >
+                                Raise Complaint
+                            </button>
+                        )}
+
                         {slip?.status === "Slip-Created" && slip?.type==="Regular" && (
                             <button
                             onClick={handleUpdate}
