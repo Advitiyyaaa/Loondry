@@ -1,4 +1,4 @@
-    import { useDispatch, useSelector } from "react-redux";
+    import { useSelector } from "react-redux";
     import { useState, useEffect } from "react";
     import SlipDisplay from "../components/userSlip/SlipDisplay";
     import SlipModal from "../components/userSlip/SlipModal";
@@ -30,7 +30,6 @@
             }
         }, [location.state]);
 
-        const closeModal = () => setOpenSlipId(null);
 
         const fetchQueueCount = async () => {
             try {

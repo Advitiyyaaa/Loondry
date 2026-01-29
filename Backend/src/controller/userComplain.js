@@ -96,7 +96,7 @@ const getAllComplains = async (req, res) => {
     }
 
     const complains = await Complain.find(filter)
-      .populate("userId", "firstName emailId")
+      .populate("userId", "firstName emailId bagNo")
       .populate("slipId")
       .sort({ createdAt: -1 });
 
@@ -110,20 +110,25 @@ const resolveComplain = async (req, res) => {
   try {
     const { clinicNote } = req.body;
 
+    if (!clinicNote?.trim()) {
+      return res.status(400).send("Clinic note is required");
+    }
+
     const complain = await Complain.findById(req.params.id);
     if (!complain) return res.status(404).send("Complaint not found");
 
-    complain.clinicNote = clinicNote || complain.clinicNote;
+    complain.clinicNote = clinicNote;
     complain.resolved = true;
     complain.resolvedAt = new Date();
 
     await complain.save();
 
-    res.status(200).json(complain);
+    return res.status(200).json(complain);
   } catch (err) {
-    res.status(400).send("Error: " + err.message);
+    return res.status(400).send("Error: " + err.message);
   }
 };
+
 
 module.exports = {
   createComplain,

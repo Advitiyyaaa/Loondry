@@ -8,11 +8,12 @@ import Auth from "./pages/Auth";
 import Landing from "./pages/Landing";
 import AdminDashboard from "./pages/AdminDashboard";
 import CreateComplain from "./pages/CreateComplain";
-import ComplainPage from "./pages/ComplainPage";
+import UserComplainPage from "./pages/UserComplainPage";
+import AdminComplainPage from "./pages/AdminComplainPage";
 import { checkAuth } from "./store/authSlice";
 
 export default function App() {
-  const { isAuthenticated } = useSelector((state) => state.auth);
+  const { isAuthenticated, user } = useSelector((state) => state.auth);
   const theme = useSelector((state) => state.theme.theme);
   const dispatch = useDispatch();
 
@@ -44,10 +45,16 @@ export default function App() {
       {/* All pages WITH Navbar and Footer */}
       <Route element={<MainLayout />}>
         <Route path="/home" element={<Home />} />
-        <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/complain/new" element={<CreateComplain />} />
-        <Route path="/complaints" element={<ComplainPage />} />
-        {/* add more protected pages here */}
+        <Route path="/admin" element={
+          user?.role==="admin"?<AdminDashboard />:<Home/>
+          } />
+        <Route path="/complain/new" element={
+          isAuthenticated?<CreateComplain />:<Home/>
+          } />
+        <Route path="/complaints" element={<UserComplainPage />} />
+        <Route path="/admin/complaints" element={
+          user?.role==="admin"?<AdminComplainPage />:<Home/>
+          } />  
       </Route>
     </Routes>
     </div>

@@ -1,5 +1,6 @@
 AdminHome.jsx
 import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router";
 import { ChevronsRight, Search } from 'lucide-react';
 import SlipCreated from "../adminSlip/SlipCreated";
 import AtClinic from "../adminSlip/AtClinic";
@@ -17,10 +18,14 @@ const STATUSES = [
 export default function AdminHome({theme}) {
     const [slips, setSlips] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [statusFilter, setStatusFilter] = useState("Slip-Created");
+    const [params] = useSearchParams();
+    const statusFromUrl = params.get("status");
+    const [statusFilter, setStatusFilter] = useState(
+        statusFromUrl || "Slip-Created"
+    );
     const [bagSearch, setBagSearch] = useState("");
     const [error, setError] = useState("");
-
+    
     const fetchAllSlips = async (status = statusFilter, bag = bagSearch) => {
         try {
             setLoading(true);

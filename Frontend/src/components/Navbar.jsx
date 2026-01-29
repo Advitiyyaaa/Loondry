@@ -42,11 +42,22 @@ export default function Navbar() {
             className="hover:text-gray-400 hover:cursor-pointer whitespace-nowrap"
             onClick={() => navigate("/admin")}
           >
-            Admin Dashboard
+            Admin-Dashboard
           </button>
           :
           <button className="hover:text-gray-400 hover:cursor-pointer whitespace-nowrap">Create-Slip</button>}
-        <button onClick={() => navigate("/complaints")} className="hover:text-gray-400 hover:cursor-pointer">Complaints</button>
+        <button
+          onClick={() => {
+            if (user?.role === "admin") {
+              navigate("/admin/complaints");
+            } else {
+              navigate("/complaints");
+            }
+          }}
+          className="hover:text-gray-400 hover:cursor-pointer"
+        >
+          Complaints
+        </button>
         <button onClick={() => navigate("/")} className="hover:text-gray-400 hover:cursor-pointer">About</button>
       </div>
       
