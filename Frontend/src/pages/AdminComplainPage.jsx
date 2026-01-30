@@ -40,25 +40,27 @@ export default function AdminComplaints() {
 
     return (
         <div className="p-4 min-h-screen space-y-3 w-[89%] sm:w-[96.5%] mx-auto">
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col gap-3 sm:flex-row sm:justify-between sm:items-center">
             <h2 className="text-lg font-semibold">Complaints</h2>
-            <div className="flex gap-2 items-center">
-                <label className="text-xs flex items-center gap-1">
-                    <input
-                    type="checkbox"
-                    checked={showUnresolved}
-                    onChange={(e) => setShowUnresolved(e.target.checked)}
-                    />
-                    Unresolved only
-                </label>
-                <button
-                    disabled={loading}
-                    onClick={fetchComplains}
-                    className={`border px-2 py-2.5 text-xs ${theme==="dark" ?"hover:bg-white hover:text-black":"hover:bg-black hover:text-white"}`}
-                    >
-                    Refresh
-                </button>
-                <div className="relative flex items-center w-full sm:w-56 sd:w-64">
+            <div className="flex flex-col sm:flex-row gap-2 items-center w-full">
+                <div className="flex justify-between sm:justify- w-full">
+                    <label className="text-xs flex items-center gap-1">
+                        <input
+                        type="checkbox"
+                        checked={showUnresolved}
+                        onChange={(e) => setShowUnresolved(e.target.checked)}
+                        />
+                        Unresolved only
+                    </label>
+                    <button
+                        disabled={loading}
+                        onClick={fetchComplains}
+                        className={`border px-2 py-2.5 text-xs ${theme==="dark" ?"hover:bg-white hover:text-black":"hover:bg-black hover:text-white"}`}
+                        >
+                        Refresh
+                    </button>
+                </div>
+                <div className="relative flex items-center w-full sm:w-56">
                     <input
                         type="number"
                         placeholder="Search by Bag No"
@@ -84,13 +86,15 @@ export default function AdminComplaints() {
         )}
 
         {loading ? (
-            <p className="text-sm opacity-70 tracking-widest">
-                Loading complaints...
-            </p>
+            <div className="flex justify-center items-center min-h-[40vh]">
+                <p className="text-sm opacity-70 tracking-widest">
+                    Loading complaints...
+                </p>
+            </div>
             ) : filteredComplains.length === 0 ? (
-            <p className="text-sm opacity-70">No complaints found.</p>
+            <p className="text-sm opacity-70 text-center pt-[19vh]">No complaints found.</p>
             ) : (
-            <div className="space-y-2">
+            <div className="space-y-4 sm:space-y-2">
                 {filteredComplains.map((c) => (
                 <AdminComplainCard
                     key={c._id}

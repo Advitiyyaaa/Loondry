@@ -51,7 +51,7 @@ export default function UserComplainPage() {
       )}
 
       {loading ? (
-        <p className="text-sm opacity-70 tracking-widest">
+        <p className="text-sm opacity-70 tracking-widest text-center sm:text-left">
           Loading complaints...
         </p>
       ) : complains.length === 0 ? (
@@ -59,7 +59,7 @@ export default function UserComplainPage() {
           You have not raised any complaints yet.
         </p>
       ) : (
-        <div className="space-y-2">
+        <div className="space-y-3 sm:space-y-2">
           {complains.map((c) => (
             <UserComplainCard key={c._id} complain={c} />
           ))}

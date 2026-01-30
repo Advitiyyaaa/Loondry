@@ -42,26 +42,28 @@ export default function AdminComplainCard({ complain, onResolved}) {
     }).toUpperCase();
 
     return (
-        <div className="border mt-3 text-sm mb-8">
+        <div className="border mt-3 text-xs sm:text-sm mb-6 sm:mb-8">
             <div className="flex flex-col gap-0.5 px-3 p-2">
-                <div className="flex justify-between items-center">
-                    <p className={`font-semibold py-0.5 pl-1 pr-2 border border-dashed`}>#{complain?.userId?.bagNo}</p>
-                    <p
-                        className={`text-xs font-semibold tracking-wider ${
-                            complain?.resolved ? "text-green-600" : "text-orange-600"
-                        }`}
-                        >
-                        {complain?.resolved ? `Resolved on ${formatDate(complain?.resolvedAt)} at ${formatTimeOnly(complain?.resolvedAt)}` : "Pending"}
-                    </p>
-                </div>
-                <div className="flex justify-between">
-                    <p className="font-semibold">{complain?.userId?.emailId}</p>
-                    <p className="text-xs opacity-70">
-                        Raised on {formatDate(complain?.createdAt)} at {formatTimeOnly(complain?.createdAt)}
-                    </p>
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center">
+                    <div className="flex flex-col">
+                        <p className={`font-semibold py-0.5 pl-1 pr-2 border border-dashed w-12 sm:w-15`}>#{complain?.userId?.bagNo}</p>
+                        <p className="font-semibold">{complain?.userId?.emailId}</p>
+                    </div>
+                    <div className="flex flex-col sm:items-end">
+                        <p
+                            className={`text-xs font-semibold tracking-wider ${
+                                complain?.resolved ? "text-green-600" : "text-orange-600"
+                            }`}
+                            >
+                            {complain?.resolved ? `Resolved on ${formatDate(complain?.resolvedAt)} at ${formatTimeOnly(complain?.resolvedAt)}` : "Pending"}
+                        </p>
+                        <p className="text-xs opacity-70">
+                            Raised on {formatDate(complain?.createdAt)} at {formatTimeOnly(complain?.createdAt)}
+                        </p>
+                    </div>
                 </div>
                 {complain?.slipId && (
-                    <div className="border border-dashed py-2 my-2 text-xs space-y-1">
+                    <div className="border border-dashed py-2 my-2 text-xs space-y-1 sm:space-y-2">
                         <div className="flex justify-between px-2 py-1">
                         <span className="font-semibold">
                             {complain?.slipId?.type} Slip
@@ -76,7 +78,7 @@ export default function AdminComplainCard({ complain, onResolved}) {
                         {complain.slipId.type === "Regular" &&
                             Object.entries(complain.slipId.clothes || {}).map(([k, v]) =>
                             v > 0 ? (
-                                <div key={k} className="flex justify-between">
+                                <div key={k} className="flex justify-between gap-2">
                                 <span className="opacity-70">{k}</span>
                                 <span>{v}</span>
                                 </div>
@@ -137,7 +139,7 @@ export default function AdminComplainCard({ complain, onResolved}) {
                             {error}
                         </p>
                     )}
-                    <div className="flex justify-end gap-2">
+                    <div className="flex flex-col gap-2 sm:flex-row sm:justify-end">
                         <button
                             onClick={() => {
                                 setActive(false);
@@ -160,7 +162,7 @@ export default function AdminComplainCard({ complain, onResolved}) {
                 ) : (
                     <button
                     onClick={() => setActive(true)}
-                    className="border px-2 py-1 hover:bg-yellow-600"
+                    className="border px-2 py-1 w-full sm:w-auto hover:bg-yellow-600"
                     >
                         Reply & Resolve
                     </button>
