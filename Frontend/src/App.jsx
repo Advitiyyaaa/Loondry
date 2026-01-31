@@ -10,6 +10,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import CreateComplain from "./pages/CreateComplain";
 import UserComplainPage from "./pages/UserComplainPage";
 import AdminComplainPage from "./pages/AdminComplainPage";
+import Settings from "./pages/Settings";
 import { checkAuth } from "./store/authSlice";
 
 export default function App() {
@@ -55,7 +56,9 @@ export default function App() {
         <Route path="/admin/complaints" element={
           user?.role==="admin"?<AdminComplainPage />:<Home/>
           } />  
+        <Route path="/settings" element={isAuthenticated?<Settings />:<Home />} />  
       </Route>
+        
     </Routes>
     </div>
   );

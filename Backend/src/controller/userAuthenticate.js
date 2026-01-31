@@ -16,6 +16,7 @@ const register = async (req,res)=>{
 
         const reply = {
             firstName:user.firstName,
+            lastName: user.lastName,
             emailId:user.emailId,
             role:user.role,
             _id:user._id,
@@ -52,6 +53,7 @@ const login = async (req,res)=>{
             throw new Error("WRONG EMAIL OR PASSWORD")
         const reply = {
             firstName:user.firstName,
+            lastName: user.lastName,
             emailId:user.emailId,
             role:user.role,
             _id:user._id,
@@ -111,7 +113,6 @@ const deleteProfile = async(req,res)=>{
             return res.status(400).send("No user found")
         }
         await User.findByIdAndDelete({_id:id})
-        // await Submission.deleteMany({userId:id})
         return res.status(200).send("User deleted")
     }
     catch(err){
@@ -119,45 +120,54 @@ const deleteProfile = async(req,res)=>{
     }
 }
 const bagNoChange = async (req, res) => {
-  try {
-    const { bagNo } = req.body;
-    const id = req.result._id;
+    try {
+        const { bagNo } = req.body;
+        const id = req.result._id;
 
-    if (!bagNo) {
-      return res.status(400).send("Bag number is required");
-    }
+        if (!bagNo) {
+            return res.status(400).send("Bag number is required");
+        }
 
-    const user = await User.findById(id);
-    if (!user) {
-      return res.status(404).send("User not found");
-    }
+        const user = await User.findById(id);
+        if (!user) {
+            return res.status(404).send("User not found");
+        }
 
-    // If user has changed bag before, check 10-day rule
-    if (user.lastBagChangeAt) {
-      const now = new Date();
-      const diffInDays =
-        (now.getTime() - user.lastBagChangeAt.getTime()) /
-        (1000 * 60 * 60 * 24);
-
-      if (diffInDays < 10) {
+        //Check same bag number FIRST
+        if (Number(user.bagNo) === Number(bagNo)) {
         return res
-          .status(403)
-          .send("Bag number can only be changed once in 10 days");
-      }
+            .status(400)
+            .send("Enter different Bag Number than your current bag Number");
+        }
+
+        //Check 10-day rule
+        if (user.lastBagChangeAt) {
+        const now = new Date();
+        const diffInDays =
+            (now.getTime() - user.lastBagChangeAt.getTime()) /
+            (1000 * 60 * 60 * 24);
+
+        if (diffInDays < 10) {
+            return res
+            .status(403)
+            .send("Bag number can only be changed once in 10 days");
+        }
+        }
+
+        //Update
+        user.bagNo = bagNo;
+        user.lastBagChangeAt = new Date();
+        await user.save();
+
+        return res.status(200).json({
+        bagNo: user.bagNo,
+        message: "Bag number updated successfully",
+        });
+    } catch (err) {
+        return res.status(500).send("Internal server error: " + err.message);
     }
-
-    user.bagNo = bagNo;
-    user.lastBagChangeAt = new Date();
-    await user.save();
-
-    return res.status(200).json({
-      bagNo: user.bagNo,
-      message: "Bag number updated successfully",
-    });
-  } catch (err) {
-    return res.status(500).send("Internal server error: " + err.message);
-  }
 };
+
 
 
 module.exports = {register,login,logout,adminRegister, deleteProfile, bagNoChange}

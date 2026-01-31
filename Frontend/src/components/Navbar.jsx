@@ -9,6 +9,11 @@ export default function Navbar() {
   const { isAuthenticated, loading, error, user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const hoverItem =
+    theme === "dark"
+      ? "hover:bg-white hover:text-black"
+      : "hover:bg-black hover:text-white";
+
   return (
     <nav
       className={`w-full p-5 ${theme === "dark" && "dark:bg-black dark:text-white"}`}
@@ -45,7 +50,17 @@ export default function Navbar() {
             Admin-Dashboard
           </button>
           :
-          <button className="hover:text-gray-400 hover:cursor-pointer whitespace-nowrap">Create-Slip</button>}
+          <button
+            onClick={() =>
+              navigate("/home", {
+                state: { openCreate: true },
+              })
+            }
+            className="hover:text-gray-400 hover:cursor-pointer whitespace-nowrap"
+          >
+            Create-Slip
+          </button>
+        }
         <button
           onClick={() => {
             if (user?.role === "admin") {
@@ -117,21 +132,117 @@ export default function Navbar() {
           {/*User Button*/}
         {isAuthenticated ?(
           <div className="dropdown dropdown-end">
-          <div tabIndex={0} role="button" className={`border-2 py-1 px-2.5 m-1 text-center ${theme === "dark" ? "hover:bg-white hover:text-black border-white":"hover:bg-black hover:text-white border-black"}`}>{user?.firstName?.[0]?.toUpperCase()}</div>
-          <ul tabIndex="-1" className={`dropdown-content menu border-2 z-1 w-42 p-2 shadow-sm bg-white text-black ${theme === "dark" && "dark:bg-black dark:text-white"}`}>
-            <li><button>Profile</button></li>
-            <li><button>Settings</button></li>
-            <li><button className="md:hidden">Complaints</button></li>
-            <li><button className="md:hidden">About</button></li>
-            {isAuthenticated &&(
-              <li>
-                <button onClick={()=>{dispatch(logoutUser());
-                }}>Logout</button>
+            {/* Avatar Button */}
+            <div
+              tabIndex={0}
+              role="button"
+              className={`border-2 py-1 px-3 m-1 text-center font-semibold tracking-wider
+              ${theme === "dark"
+                ? "hover:bg-white hover:text-black border-white"
+                : "hover:bg-black hover:text-white border-black"}`}
+            >
+              {user?.firstName?.[0]?.toUpperCase()}
+            </div>
+
+            {/* Dropdown */}
+            <ul
+              tabIndex={0}
+              className={`dropdown-content border-2 z-50 w-64 p-3 shadow-md space-y-2
+              ${theme === "dark"
+                ? "bg-black text-white border-white"
+                : "bg-white text-black border-black"}`}
+            >
+              {/* Profile Info */}
+              <li className="border-b pb-2 px-2">
+                <div className="flex flex-col text-sm gap-0.5">
+                  <div className="flex justify-between items-start">
+                    <p className="font-semibold text-base leading-tight">
+                      {user?.firstName} {user?.lastName}
+                    </p>
+
+                    {user?.role === "admin" && (
+                      <span className="text-[9px] px-1.5 py-px border border-dashed opacity-70">
+                        ADMIN
+                      </span>
+                    )}
+                  </div>
+
+                  <p className="opacity-70 text-xs break-all">
+                    {user?.emailId}
+                  </p>
+
+                  {user?.role !== "admin" && (
+                    <p className="text-xs opacity-60">
+                      Bag No: #{user?.bagNo}
+                    </p>
+                  )}
+                </div>
               </li>
-            )}
-          </ul>
-        </div>
-        
+
+
+              {/* Actions */}
+              <li className="md:hidden">
+                <button className={`w-full text-left text-sm px-2 py-1 ${hoverItem}`}
+                  onClick={() => {
+                    document.activeElement?.blur();
+                    navigate("/home");
+                  }}
+                >
+                  Home
+                </button>
+              </li>
+
+              <li className="md:hidden">
+                <button className={`w-full text-left text-sm px-2 py-1 ${hoverItem}`}
+                  onClick={() => {
+                    if (user?.role === "admin") {
+                      navigate("/admin/complaints");
+                      document.activeElement?.blur();
+                    } else {
+                      navigate("/complaints");
+                      document.activeElement?.blur();
+                    }
+                  }}  
+                >
+                  Complaints
+                </button>
+              </li>
+
+              <li className="md:hidden">
+                <button className={`w-full text-left text-sm px-2 py-1 ${hoverItem}`}
+                  onClick={() => {
+                    document.activeElement?.blur();
+                    navigate("/");
+                  }}
+                >
+                  About
+                </button>
+              </li>
+
+              <li>
+                <button
+                  className={`w-full text-left text-sm px-2 py-1 ${hoverItem}`}
+                  onClick={() => {
+                    document.activeElement?.blur();
+                    navigate("/settings");
+                  }}
+                >
+                  Settings
+                </button>
+              </li>
+
+              <li className="border-t pt-2">
+                <button
+                  onClick={() => dispatch(logoutUser())}
+                  className={`w-full text-left text-sm px-2 py-1 text-red-500 ${theme === "dark"
+                    ? "hover:bg-white"
+                    : "hover:bg-black"}`}
+                >
+                  Logout
+                </button>
+              </li>
+            </ul>
+          </div>
         ):(
           <button className="border-2 py-1 px-1.5 text-center" onClick={()=>{navigate("/auth")}}>Login</button>
         )}

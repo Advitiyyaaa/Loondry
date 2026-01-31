@@ -9,13 +9,15 @@ authRouter.post('/login',login)
 authRouter.post('/logout',userMiddleware,logout)
 authRouter.post('/admin/register',adminMiddleware,adminRegister)
 authRouter.delete('/delete',userMiddleware,deleteProfile)
-authRouter.post('/bagNumber/change',userMiddleware,bagNoChange)
+authRouter.put('/bagNumber/change',userMiddleware,bagNoChange)
 authRouter.get('/check',userMiddleware,(req,res)=>{
     const reply = {
         firstName:req?.result?.firstName,
+        lastName: req?.result?.lastName,
         emailId:req?.result?.emailId,
         role:req?.result?.role,
         _id:req?.result?._id,
+        bagNo: req?.result?.bagNo
     }
     res.status(201).json({
         user:reply,

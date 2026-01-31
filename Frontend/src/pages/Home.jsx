@@ -30,6 +30,14 @@
             }
         }, [location.state]);
 
+        useEffect(() => {
+            if (location.state?.openCreate) {
+                setOpenCreate(true);
+                window.history.replaceState({}, document.title);
+            }
+        }, [location.state]);
+
+
 
         const fetchQueueCount = async () => {
             try {

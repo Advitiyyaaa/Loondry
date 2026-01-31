@@ -113,7 +113,7 @@ export default function AdminHome({theme}) {
     return (
         <div className="w-[89%] sm:w-[96.5%] mx-auto my-2 min-h-screen transition-all">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex overflow-x-auto gap-2 sm:gap-4 text-[11px] sm:text-sm tracking-wider">
+                <div className="flex overflow-x-auto gap-2 sm:gap-4 text-[11px] sm:text-sm tracking-wider scrollbar-thin scrollbar-thumb-gray-500">
                         {["Slip-Created", "At Clinic", "Ready for Pickup", "Completed"].map(
                             (s, i) => (
                                 <div key={s} className="flex items-center gap-2">
@@ -124,7 +124,9 @@ export default function AdminHome({theme}) {
                                         }}
                                         className={`
                                             ${statusFilter === s ? active : inactive}
-                                            border-2 px-3 py-1 uppercase transition-all 
+                                            border-2 px-3 h-10 min-w-30
+                                            flex items-center justify-center
+                                            whitespace-nowrap text-center uppercase transition-all
                                             hover:bg-black hover:text-white
                                             ${theme==="dark" && "dark:hover:bg-white dark:hover:text-black"}
                                         `}

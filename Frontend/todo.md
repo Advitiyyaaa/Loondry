@@ -1,9 +1,9 @@
 # Loondry – To Do
 
 - [x] Make Complain pages responsive
-- [ ] User Profile
-- [ ] Navbar Create-Slip
-- [ ] Mobile Navbar(add navabar features in sidebar) 
+- [x] User Profile
+- [x] Navbar Create-Slip
+- [x] Mobile Navbar(add navabar features in sidebar) 
 - [ ] Check token duration
 - [ ] Make Landing Page
 - [ ] Polish footer

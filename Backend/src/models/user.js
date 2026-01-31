@@ -45,11 +45,17 @@ const userSchema = new Schema({
     }
 },{timestamps:true})
 
-userSchema.post('findOneAndDelete',async function(userInfo){
-    if(userInfo){
-        await mongoose.model('submission').deleteMany({userId: userInfo._id})
-    }
-})
+userSchema.post("findOneAndDelete", async function (user) {
+  if (!user) return;
+
+  const Slip = mongoose.model("slip");
+  const Complain = mongoose.model("complain");
+
+  await Promise.all([
+    Slip.deleteMany({ userId: user._id }),
+    Complain.deleteMany({ userId: user._id }),
+  ]);
+});
 
 const User = mongoose.model("user",userSchema)
 module.exports = User;
