@@ -5,6 +5,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { useState } from "react";
 import axiosClient from "../utils/axiosClient";
 import { logoutUser } from "../store/authSlice";
+import AdminRegisterForm from "../components/AdminRegisterForm";
 import { Cog } from 'lucide-react';
 import { useNavigate } from "react-router";
 
@@ -131,6 +132,18 @@ export default function Settings() {
                         Update Bag Number
                     </button>
                     </form>
+                </div>
+            )}
+            
+            {/* Registering other admins */}
+            {user?.role === "admin" && (
+                <div className="border-2 p-4 space-y-3">
+                    <h2 className="font-semibold">Register New Admin</h2>
+                    <p className="text-xs opacity-70">
+                    Create another admin for staff access.
+                    </p>
+
+                    <AdminRegisterForm />
                 </div>
             )}
             

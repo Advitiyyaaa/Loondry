@@ -1,39 +1,53 @@
 const User = require('../models/user')
-const validate = require('../utils/userValidator')
+const userValidate = require("../utils/userValidator");
+const adminValidate = require("../utils/adminValidator");
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const RedisClient = require('../config/redis');
 require('dotenv').config()
 
-const register = async (req,res)=>{
-    try{
-        validate(req.body)
-        const {firstName, emailId, password, bagNo} = req.body
-        req.body.password = await bcrypt.hash(password,10)
-        req.body.role='user'
+const register = async (req, res) => {
+  try {
+    userValidate(req.body);
 
-        const user = await User.create(req.body)
+    const { firstName, lastName, emailId, password, bagNo } = req.body;
 
-        const reply = {
-            firstName:user.firstName,
-            lastName: user.lastName,
-            emailId:user.emailId,
-            role:user.role,
-            _id:user._id,
-            bagNo:user.bagNo
-        }
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-        const token = jwt.sign({_id:user._id, emailId:emailId, role:'user', bagNo: user.bagNo},process.env.JWT_SECRET_KEY,{expiresIn:3600})
-        res.cookie("token",token,{maxAge: 60*60*1000})
-        res.status(201).json({
-            user:reply,
-            message: "Registration successful"
-        })
-    }
-    catch(err){
-        res.status(400).send(err.message)
-    }
-}
+    const user = await User.create({
+      firstName,
+      lastName,
+      emailId,
+      password: hashedPassword,
+      bagNo,
+      role: "user",
+    });
+
+    const reply = {
+      firstName: user.firstName,
+      lastName: user.lastName,
+      emailId: user.emailId,
+      role: user.role,
+      _id: user._id,
+      bagNo: user.bagNo,
+    };
+
+    const token = jwt.sign(
+      { _id: user._id, emailId, role: "user", bagNo: user.bagNo },
+      process.env.JWT_SECRET_KEY,
+      { expiresIn: 3600 }
+    );
+
+    res.cookie("token", token, { maxAge: 60 * 60 * 1000 });
+
+    res.status(201).json({
+      user: reply,
+      message: "Registration successful",
+    });
+  } catch (err) {
+    res.status(400).send(err.message);
+  }
+};
 
 const login = async (req,res)=>{
     try{
@@ -87,24 +101,39 @@ const logout = async(req,res)=>{
     }
 }
 
-const adminRegister = async (req,res)=>{
-    try{
-        validate(req.body)
-        const {firstName, emailId, password} = req.body
-        req.body.password = await bcrypt.hash(password,10)
+const adminRegister = async (req, res) => {
+  try {
+    adminValidate(req.body);
 
-        const user = await User.create({
-            firstName,
-            emailId,
-            password: req.body.password,
-            role: "admin",
-        });
-        res.status(201).send("User registered succesfully")
-    }
-    catch(err){
-        res.status(400).send(err.message)
-    }
-}
+    const { firstName, lastName, emailId, password } = req.body;
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const admin = await User.create({
+      firstName,
+      lastName, // optional
+      emailId,
+      password: hashedPassword,
+      role: "admin",
+    });
+
+    const reply = {
+      firstName: admin.firstName,
+      lastName: admin.lastName,
+      emailId: admin.emailId,
+      role: admin.role,
+      _id: admin._id,
+    };
+
+    res.status(201).json({
+      user: reply,
+      message: "Admin registered successfully",
+    });
+  } catch (err) {
+    res.status(400).send(err.message);
+  }
+};
+
 
 const deleteProfile = async(req,res)=>{
     try{

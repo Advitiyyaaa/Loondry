@@ -20,7 +20,9 @@ const userSchema = new Schema({
     bagNo:{
         type:Number,
         unique: true,
-        required: true
+        required: function () {
+            return this.role === "user";
+        }
     },
     lastBagChangeAt:{
         type:Date,

@@ -4,7 +4,7 @@
 - [x] User Profile
 - [x] Navbar Create-Slip
 - [x] Mobile Navbar(add navabar features in sidebar) 
-- [ ] Check token duration
+- [x] Check token duration
 - [ ] Make Landing Page
 - [ ] Polish footer
 - [ ] Create a readme

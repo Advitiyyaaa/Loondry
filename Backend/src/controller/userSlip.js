@@ -185,25 +185,11 @@ const getAllSlips = async (req, res) => {
     if (status) filter.status = status;
     if (type) filter.type = type;
 
-    const limit = parseInt(req.query.limit) || 50;
-    const page = parseInt(req.query.page) || 1;
+    const slips = await Slip.find(filter)
+      .populate("userId", "firstName emailId bagNo")
+      .sort({ createdAt: -1 });
 
-    const [slips, total] = await Promise.all([
-      Slip.find(filter)
-        .populate("userId", "firstName emailId bagNo")
-        .sort({ createdAt: -1 })
-        .skip((page - 1) * limit)
-        .limit(limit),
-      Slip.countDocuments(filter),
-    ]);
-
-    res.status(200).json({
-      data: slips,
-      page,
-      limit,
-      total,
-      totalPages: Math.ceil(total / limit),
-    });
+    res.status(200).json({ data: slips });
   } catch (err) {
     res.status(500).send("Error: " + err.message);
   }
