@@ -10,7 +10,6 @@
 - [x] Check token duration
 - [x] Make Landing Page
 - [x] Make Landing Page responsive
-- [ ] Polish footer
-- [ ] Create a readme
-- [ ] Deploy frontend/backend
+- [x] Create a readme
+- [x] Deploy frontend/backend
 
