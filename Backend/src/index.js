@@ -14,7 +14,7 @@ const app = express()
 app.use(cors({
   origin: [
     "http://localhost:5173",
-    "https://loondry.vercel.app"
+    "https://loondry-oy5fi3tfn-advitiya-s-projects-296a2124.vercel.app"
   ],
   credentials: true
 }));
