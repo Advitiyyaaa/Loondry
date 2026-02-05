@@ -44,7 +44,7 @@ export default function HowItWorks({ theme }) {
               style={{ y, scale, opacity }}
               className="px-6 max-w-4xl ml-4 md:ml-12"
             >
-              <div className="relative inline-block ml-4 md:ml-40 md:mt-10">
+              <div className="relative inline-block ml-2 md:ml-40 md:mt-10 scale-[0.85] md:scale-[1]">
 
                 {/* Tape – left */}
                 <div
@@ -97,7 +97,7 @@ export default function HowItWorks({ theme }) {
         </div>
 
         {/*RIGHT COLUMN*/}
-        <div className="hidden md:block col-span-4 relative">
+        <div className="hidden lg:block col-span-4 relative">
           <motion.div
             initial={{ opacity: 0, x: 60 }}
             animate={{
