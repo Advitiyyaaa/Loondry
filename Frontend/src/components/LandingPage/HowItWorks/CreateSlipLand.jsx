@@ -7,10 +7,12 @@ export default function CreateSlipLand({ theme }) {
     <div
       className={`
         w-full flex items-center
-        gap-4 md:gap-14
-        px-4 md:px-10
+        gap-3 md:gap-14
+        md:px-10
         py-6 md:py-12
         md:ml-30
+        scale-[0.8]
+        md:scale-[1]
       `}
     >
       {/* Image */}

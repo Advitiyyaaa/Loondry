@@ -37,12 +37,14 @@ const registerSchema = z.object({
 
 export default function Auth() {
   const theme = useSelector((state) => state.theme.theme);
-  const { isAuthenticated, loading, error } = useSelector((state) => state.auth);
+  const { error } = useSelector((state) => state.auth);
   const Navigate = useNavigate();
   const dispatch = useDispatch();
 
   const [showPassword, setShowPassword] = useState(false);
   const [mode, setMode] = useState("login");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
 
   const form = useForm({
     resolver: zodResolver(mode === "login" ? loginSchema : registerSchema),
@@ -70,13 +72,20 @@ export default function Auth() {
     }
   }, [theme]);
 
-  const onSubmit = (data) => {
-    if (mode === "login") {
-      dispatch(loginUser(data));
-    } else {
-      dispatch(registerUser(data));
+  const onSubmit = async (data) => {
+    setIsSubmitting(true);
+
+    try {
+      if (mode === "login") {
+        await dispatch(loginUser(data)).unwrap();
+      } else {
+        await dispatch(registerUser(data)).unwrap();
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
+
 
   const toggleMode = () => {
     dispatch(clearError());
@@ -243,13 +252,16 @@ export default function Auth() {
 
               <button
                 type="submit"
-                disabled={loading}
-                className={`w-full bg-black text-white hover:bg-gray-800
-                          ${theme === "dark" && "dark:bg-white dark:text-black dark:hover:bg-gray-200"}
-                           font-semibold tracking-wider py-3 transition-colors duration-200 shadow-md hover:shadow-lg`}
+                disabled={isSubmitting}
+                className={`w-full bg-black text-white hover:bg-gray-800 
+                  disabled:opacity-70 disabled:cursor-not-allowed
+                  ${theme === "dark" && "dark:bg-white dark:text-black dark:hover:bg-gray-200"}
+                  font-semibold tracking-wider py-3 transition-colors duration-200 shadow-md hover:shadow-lg`}
               >
                 {mode === "login" ? "SIGN IN" : "CREATE ACCOUNT"}
-                {loading && <span className="ml-2 loading animate-spin"></span>}
+                {isSubmitting && 
+                  <span className="ml-2 inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                }
               </button>
             </form>
 

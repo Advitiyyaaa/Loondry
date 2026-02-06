@@ -11,7 +11,7 @@ export default function Landing() {
   return (
     <div className="overflow-x-hidden lg:overflow-visible">
       <LandingNavbar theme={theme} />
-      <HeroZoomSlip theme={theme} />
+      <HeroZoomSlip theme={theme}/>
       <ProblemSolution theme={theme} /> 
       <HowItWorks theme={theme} />
       <FinalCTA theme={theme} />

@@ -39,7 +39,7 @@ export default function FinalCTA({ theme }) {
   return (
     <section
       ref={ref}
-      className={`relative ${isLg ? "min-h-[200vh]" : "py-1"}`}
+      className={`relative ${isLg ? "min-h-[200vh]" : "py-1 scale-[0.9] -ml-5"}`}
     >
       {/* Sticky viewport */}
       <div className="sticky top-0 h-screen flex items-center">
@@ -98,7 +98,7 @@ export default function FinalCTA({ theme }) {
             <div className="relative inline-block">
               {/* Shadow layer */}
               <div
-                className={`absolute top-0 left-0 w-full h-full translate-x-3 translate-y-3 border-2 ${
+                className={`absolute top-0 left-0 w-full h-full translate-x-3 translate-y-3 border-2 scale-[0.8] ${
                   theme === "dark"
                     ? "border-white bg-white"
                     : "border-black bg-black"
@@ -107,7 +107,7 @@ export default function FinalCTA({ theme }) {
 
               {/* Foreground action bar */}
               <div
-                className={`relative z-10 flex flex-col items-center gap-6 px-6 py-5 border-2 ${
+                className={`relative z-10 flex flex-col items-center gap-4 px-6 py-5 border-2 scale-[0.8] ${
                   theme === "dark"
                     ? "bg-black border-white text-white"
                     : "bg-white border-black text-black"
@@ -121,7 +121,7 @@ export default function FinalCTA({ theme }) {
                   {/* Primary CTA */}
                   <button
                     onClick={() => navigate("/home")}
-                    className={`group px-5 py-3 font-semibold text-md transition-all duration-300 ${
+                    className={`px-3 py-1.5 md:px-8 md:py-6 font-semibold text-md transition-all duration-300 ${
                       theme === "dark"
                         ? "bg-white text-black hover:bg-gray-300"
                         : "bg-black text-white hover:bg-gray-700"
@@ -133,7 +133,7 @@ export default function FinalCTA({ theme }) {
                   {/* Secondary CTA */}
                   <button
                     onClick={() => navigate("/auth")}
-                    className="px-5 py-3 font-semibold text-md hover:bg-gray-400/30"
+                    className="px-3 py-1.5 md:px-8 md:py-6 font-semibold text-md hover:bg-gray-400/30"
                   >
                     Login Instead
                   </button>

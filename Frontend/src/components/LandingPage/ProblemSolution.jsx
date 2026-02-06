@@ -28,11 +28,11 @@ export default function ProblemSolution({ theme }) {
 	const scale = useTransform(
 		scrollYProgress,
 		[0, 1],
-		isMobile ? [1, 1.18] : [1, 1.5]
+		isMobile ? [1, 1.13] : [1, 1.5]
 	);
 
 	return (
-		<section ref={ref} className="relative min-h-[140vh] md:h-screen overflow-x-hidden overflow-y-clip">
+		<section ref={ref} className="relative min-h-[160vh] md:h-screen overflow-x-hidden overflow-y-clip">
 			{/* Sticky viewport */}
 			<div className="sticky top-0 h-screen flex items-start justify-center pt-20 sm:pt-24 md:pt-32">
 				<motion.div

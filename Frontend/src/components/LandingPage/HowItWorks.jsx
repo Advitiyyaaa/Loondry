@@ -44,7 +44,7 @@ export default function HowItWorks({ theme }) {
               style={{ y, scale, opacity }}
               className="px-6 max-w-4xl ml-4 md:ml-12"
             >
-              <div className="relative inline-block ml-2 md:ml-40 md:mt-10 scale-[0.85] md:scale-[1]">
+              <div className="relative inline-block -ml-3 md:ml-40 md:mt-10 scale-[0.75] md:scale-[1]">
 
                 {/* Tape – left */}
                 <div
@@ -87,7 +87,7 @@ export default function HowItWorks({ theme }) {
             </motion.div>
           </div>
 
-          <div ref={slipsRef} className="flex flex-col gap-14 md:gap-20 mt-10 md:mt-0">
+          <div ref={slipsRef} className="flex flex-col md:gap-20 mt-10 md:mt-0">
             <CreateSlipLand theme={theme}/>
             <AtClinicLand theme={theme}/>
             <ReadyLand theme={theme}/>

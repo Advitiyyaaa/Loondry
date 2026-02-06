@@ -7,10 +7,12 @@ export default function ReadyLand({ theme }) {
         <div
         className={`
             w-full flex items-center
-            gap-4 md:gap-14
-            px-4 md:px-10
+            gap-3 md:gap-14
+            md:px-10
             py-6 md:py-12
             md:ml-30
+            scale-[0.8]
+            md:scale-[1]
         `}
         >
             {/* Image */}
@@ -30,13 +32,11 @@ export default function ReadyLand({ theme }) {
                 }
             </div>
             {/* Text Content */}
-            <div className="flex min-w-0">
                 <h3 className="font-bold tracking-tight leading-tight">
                     <span className="block text-2xl sm:text-lg md:text-7xl">No slip.</span>
                     <span className="block text-xl sm:text-lg md:text-5xl">No confusion.</span>
                     <span className="block text-2xl sm:text-lg md:text-7xl">Just OTP.</span>
                 </h3>
-            </div>
         </div>
     );
 }

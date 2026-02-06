@@ -205,7 +205,7 @@ export default function SlipModal({ slipId, closeModal, theme, fetchedSlips, que
                 )}
 
                 <div className={`flex justify-between mt-3 items-center px-2 ${slip?.type!=="Regular" && slip?.status!=="Slip-Created" && "w-[97.5%] mx-auto"}`}>
-                    <div className="flex gap-2"> 
+                    <div className="flex gap-1 md:gap-2"> 
                         {(slip?.status !== "At Clinic" && slip?.status !== "Ready for Pickup") && (
                             <div className="dropdown dropdown-top">
                                 <div
@@ -220,39 +220,41 @@ export default function SlipModal({ slipId, closeModal, theme, fetchedSlips, que
                                     tabIndex={0}
                                     className={`dropdown-content z-10 mb-2 w-64 border bg-white text-black ${theme === "dark" && ("dark:bg-black dark:text-white")}`}>
                                     <div className="p-3 border space-y-3">
-                                    <p className="text-xs opacity-80">
-                                        Are you sure you want to delete this slip? This action cannot be undone.
-                                    </p>
+                                        <p className="text-xs opacity-80">
+                                            Are you sure you want to delete this slip? This action cannot be undone.
+                                        </p>
 
-                                    <div className="flex justify-end gap-2">
-                                        <button
-                                        onClick={() => document.activeElement?.blur()}
-                                        className={`border px-2 py-1 text-xs hover:bg-black hover:text-white ${theme==='dark' && ("dark:hover:bg-white dark:hover:text-black")}`}
-                                        >
-                                            No
-                                        </button>
-                                        <button
-                                        onClick={()=>{
-                                            handleDelete();
-                                            document.activeElement?.blur();
-                                        }}
-                                        className="border px-2 py-1 text-xs hover:bg-red-600"
-                                        >
-                                        Yes
-                                        </button>
+                                        <div className="flex justify-end gap-2">
+                                            <button
+                                            onClick={() => document.activeElement?.blur()}
+                                            className={`border px-2 py-1 text-xs hover:bg-black hover:text-white ${theme==='dark' && ("dark:hover:bg-white dark:hover:text-black")}`}
+                                            >
+                                                No
+                                            </button>
+                                            <button
+                                            onClick={()=>{
+                                                handleDelete();
+                                                document.activeElement?.blur();
+                                            }}
+                                            className="border px-2 py-1 text-xs hover:bg-red-600"
+                                            >
+                                            Yes
+                                            </button>
+                                        </div>
                                     </div>
-                                    </div>
-                                </div>
+                                </div>  
                             </div>
-                        )}   
+                            
+                        )} 
                         {canRaiseComplaint() && (
                             <button
                                 onClick={() => navigate(`/complain/new?slip=${slip._id}`)}
                                 className="border-2 px-3 py-1 text-xs hover:bg-yellow-500"
                             >
-                                Raise Complaint
+                                <span className="block sm:hidden">Complain</span>
+                                <span className="hidden sm:block">Raise Complaint</span>
                             </button>
-                        )}
+                        )}  
 
                         {slip?.status === "Slip-Created" && slip?.type==="Regular" && (
                             <button
