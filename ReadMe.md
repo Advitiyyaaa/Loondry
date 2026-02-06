@@ -1,4 +1,7 @@
-# 🧺 Loondry
+<h1>
+  <img src="./Frontend/public/favicon.svg" alt="Loondry Logo" width="38" style="vertical-align: middle;" />
+  <span style="vertical-align: bottom; margin-left: 2px;">Loondry</span>
+</h1>
 
 <div align="center">
 
@@ -8,9 +11,9 @@ A full-stack workflow system that digitizes traditional laundry clinic operation
 
 [![MERN Stack](https://img.shields.io/badge/Stack-MERN-green?style=for-the-badge)](/)
 [![Redis](https://img.shields.io/badge/Cache-Redis-red?style=for-the-badge)](/)
-[![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](/)
 
-[Live Demo](#) • [Features](#-features) • [Installation](#-installation) • [Documentation](#-documentation)
+
+[Live Demo](https://loondry.vercel.app) • [Features](#-features) • [Installation](#-installation) • [Deployment](#-deployment)
 
 </div>
 
@@ -36,7 +39,7 @@ Traditional laundry clinics face several operational challenges:
 - ✅ Digitizes the entire slip lifecycle
 - 📊 Provides real-time status tracking
 - 🔐 Secures pickup with OTP verification
-- 📈 Manages queues intelligently
+- 📈 You can choose when to go to clinic after getting queue size estimation
 - 💬 Enables complaint management
 
 ---
@@ -84,12 +87,14 @@ Traditional laundry clinics face several operational challenges:
 ![Redux](https://img.shields.io/badge/Redux-593D88?style=for-the-badge&logo=redux&logoColor=white)
 ![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
 ![DaisyUI](https://img.shields.io/badge/DaisyUI-5A0EF8?style=for-the-badge&logo=daisyui&logoColor=white)
+![Lucide React](https://img.shields.io/badge/Lucide%20React-000000?style=for-the-badge&logo=react&logoColor=white)
 ![Framer Motion](https://img.shields.io/badge/Framer_Motion-0055FF?style=for-the-badge&logo=framer&logoColor=white)
 
 ### Backend
 ![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
 ![Express](https://img.shields.io/badge/Express-000000?style=for-the-badge&logo=express&logoColor=white)
 ![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white)
+![Cron](https://img.shields.io/badge/Cron-000000?style=for-the-badge&logo=linux&logoColor=white)
 ![Redis](https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white)
 ![JWT](https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white)
 
@@ -179,23 +184,27 @@ Create `.env` file:
 
 ```env
 # Database
-MONGO_URI=mongodb://localhost:27017/loondry
+CONNECTION_STRING= your_mongo_string
 
 # Authentication
-JWT_SECRET=your_super_secret_jwt_key_here
+JWT_SECRET_KEY= your_super_secret_jwt_key_here
 
 # Cache
-REDIS_URL=redis://localhost:6379
+REDIS_USERNAME= default
+REDIS_PASSWORD= your_redis_password
+REDIS_HOST= your_redis_host_url
+REDIS_PORT= your_redis_port
 
 # Server
-PORT=5000
-NODE_ENV=development
+PORT=2000
 ```
 
 Start the backend:
 
 ```bash
-npm run dev
+nodemon src/index.js
+or
+node src/index.js
 ```
 
 ### 3. Frontend Setup
@@ -208,7 +217,7 @@ npm install
 Create `.env` file:
 
 ```env
-VITE_API_URL=http://localhost:5000/api
+VITE_API_URL= your_deployed_backend_url
 ```
 
 Start the development server:
@@ -220,8 +229,7 @@ npm run dev
 ### 4. Access Application
 
 - **Frontend**: http://localhost:5173
-- **Backend API**: http://localhost:5000
-- **Admin Panel**: Register first admin through `/api/admin/register`
+- **Backend API**: http://localhost:2000
 
 ---
 
@@ -232,8 +240,6 @@ These constraints ensure data integrity and reflect real-world laundry operation
 | Rule | Description |
 |------|-------------|
 | 📌 **One Active Regular Slip** | Users can only have one pending regular slip at a time |
-| 👕 **Minimum Items** | Regular slips must contain at least one clothing item |
-| 💰 **Paid Items Only** | Paid slips must contain at least one paid service item |
 | ➡️ **Forward-Only Progression** | Slip status can only advance, never regress |
 | 🔐 **OTP Required** | Pickup requires valid one-time password |
 | ⏰ **24-Hour Complaint Window** | Complaints must be filed within 1 day of completion |
@@ -245,41 +251,42 @@ These constraints ensure data integrity and reflect real-world laundry operation
 
 ### Authentication
 ```
-POST   /user/register                   # User registration
-POST   /user/login                      # User/admin login
-POST   /user/admin/register             # Admin registration
-POST   /user/bagNumber/change           # Bag Number change
+POST    /user/register                 # User registration
+POST    /user/login                    # User/admin login
+POST    /user/admin/register           # Admin registration
+POST    /user/bagNumber/change         # Bag Number change
 ```
 
 ### Slips
 ```
-GET    /slip/queue-count                # Get current queue size before visiting clinic
-GET    /slip/my                         # Get all slips of logged-in user
-GET    /slip/:id                        # Get single slip details by ID
+GET     /slip/queue-count              # Get current queue size before visiting clinic
+GET     /slip/my                       # Get all slips of logged-in user
+GET     /slip/:id                      # Get single slip details by ID
 
-POST   /slip/create                     # Create a new slip (Regular / Paid)
-PUT    /slip/update/:id                 # Update clothes/items before approval
-DELETE /slip/delete/:id                 # Delete slip (only when allowed)
+POST    /slip/create                   # Create a new slip (Regular / Paid)
+PUT     /slip/update/:id               # Update clothes/items before approval
+DELETE  /slip/delete/:id               # Delete slip (only when allowed)
 
-GET    /slip/admin/all                  # Get all slips with filters
+GET     /slip/admin/all                # Get all slips with filters
 
-PUT    /slip/admin/approve/:id          # Approve slip (Slip-Created → At Clinic)
-PUT    /slip/admin/ready/:id            # Mark slip Ready for Pickup
-PUT    /slip/admin/complete/:id         # Complete slip using OTP verification
+PUT     /slip/admin/approve/:id        # Approve slip (Slip-Created → At Clinic)
+PUT     /slip/admin/ready/:id          # Mark slip Ready for Pickup
+PUT     /slip/admin/complete/:id       # Complete slip using OTP verification
 
-DELETE /slip/admin/reject/:id           # Reject & delete slip
+DELETE  /slip/admin/reject/:id         # Reject & delete slip
 
 ```
 
 ### Complaints
 ```
-POST   /complain/create                 # Create a new complaint (within 1 day of completion)
-GET    /complain/my                     # Get all complaints of logged-in user
-GET    /complain/:id                    # Get single complaint details
+POST    /complain/create               # Create a new complaint (within 1 day of completion)
+GET     /complain/my                   # Get all complaints of logged-in user
+GET     /complain/:id                  # Get single complaint details
 
-GET    /complain/admin/all              # Get all complaints
-PUT    /complain/admin/resolve/:id      # Mark complaint as resolved
+GET     /complain/admin/all            # Get all complaints
+PUT     /complain/admin/resolve/:id    # Mark complaint as resolved
 ```
+
 
 ---
 
@@ -292,7 +299,7 @@ PUT    /complain/admin/resolve/:id      # Mark complaint as resolved
 
 ### Admin Views
 - **Dashboard**: Filterable grid of all active slips
-- **Queue View**: Real-time queue status and metrics
+- **Queue View**: Real-time queue status
 - **Complaint Manager**: Centralized complaint handling
 
 ### Animations
@@ -301,9 +308,24 @@ PUT    /complain/admin/resolve/:id      # Mark complaint as resolved
 - Smooth status transition indicators
 
 ---
+
+## 🚢 Deployment
+
+This project is live and deployed on:
+
+- **Frontend**: Deployed on [Vercel](https://vercel.com) ✨
+- **Backend**: Deployed on [Render](https://render.com) 🚀
+- **Live Demo**: [https://loondry.vercel.app](https://loondry.vercel.app)
+
+
+
+
+
+---
+
 ## 👨‍💻 Author
 
-**Advitiyya**
+**Advitiya Arya**
 
 - GitHub: [@Advitiyyaaa](https://github.com/Advitiyyaaa)
 - Project Link: [Loondry](https://github.com/Advitiyyaaa/Loondry)
