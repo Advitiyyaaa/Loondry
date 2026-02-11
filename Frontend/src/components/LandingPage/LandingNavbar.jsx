@@ -20,7 +20,7 @@ export default function LandingNavbar({ theme }) {
 
     return (
         <nav className={`fixed top-0 left-0 w-full z-50 ${!showShadow ? "p-2" : "p-3 lg:p-5"} transition-all duration-500 overflow-visible`}>
-            <div className="relative max-w-[95%] lg:max-w-7xl lg:mx-auto">
+            <div className="relative max-w-[95%] lg:max-w-7xl mx-auto">
 
                 {/* Shadow Layer (only at top) */}
                 {showShadow && (
@@ -56,13 +56,13 @@ export default function LandingNavbar({ theme }) {
                     <div className="flex items-center gap-0.5 sm:gap-3">
                         {/* Theme Toggle */}
                         <button
-                        className="p-0.5 sm:p-2 transition"
+                        className="p-0.5 transition"
                         onClick={() => dispatch(toggleTheme())}
                         >
                         {theme === "light" ? (
                             // Moon
                             <svg
-                            className="w-3.5 h-3.5 sm:w-5 sm:h-5 text-black hover:fill-black"
+                            className="w-4 h-4 sm:w-5 sm:h-5 text-black hover:fill-black"
                             fill="none"
                             viewBox="0 0 24 24"
                             stroke="currentColor"
@@ -77,7 +77,7 @@ export default function LandingNavbar({ theme }) {
                         ) : (
                             // Sun
                             <svg
-                            className="w-5 h-5 text-white hover:fill-white"
+                            className="w-4 h-4 sm:w-5 sm:h-5 text-white hover:fill-white"
                             fill="none"
                             viewBox="0 0 24 24"
                             stroke="currentColor"

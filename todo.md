@@ -14,5 +14,5 @@
 - [x] Deploy frontend/backend
 - [x] Slip deletion but complain stays
 - [x] frontend Bug: Admin also requires bennett email 
-- [ ] Mobile landing page glass navbar positioning
+- [x] Mobile landing page glass navbar positioning
 
