@@ -12,4 +12,6 @@
 - [x] Make Landing Page responsive
 - [x] Create a readme
 - [x] Deploy frontend/backend
+- [ ] Slip deletion but complain stays
+- [ ] Mobile landing page glass navbar positioning
 

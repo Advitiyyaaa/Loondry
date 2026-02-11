@@ -138,5 +138,13 @@ const slipSchema = new Schema(
   { timestamps: true }
 );
 
+slipSchema.post("findOneAndDelete", async function (slip) {
+  if (!slip) return;
+
+  const Complain = mongoose.model("complain");
+
+  await Complain.deleteMany({ slipId: slip._id });
+});
+
 const Slip = mongoose.model("slip", slipSchema);
 module.exports = Slip;
