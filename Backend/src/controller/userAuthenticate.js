@@ -12,6 +12,16 @@ const register = async (req, res) => {
 
     const { firstName, lastName, emailId, password, bagNo } = req.body;
 
+    const existedUser = await User.findOne({ emailId });
+    if (existedUser) {
+        throw new ("User with this email id already exist");
+    }
+
+    const existedBagNumber = await User.findOne({ bagNo });
+    if (existedBagNumber) {
+      throw new Error("Bag number is already assigned to another user");
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await User.create({
