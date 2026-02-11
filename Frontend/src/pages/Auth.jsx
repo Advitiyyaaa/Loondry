@@ -11,9 +11,13 @@ import { loginUser, registerUser, clearError } from "../store/authSlice";
 const loginSchema = z.object({
   emailId: z
     .string()
-    .regex(/^[a-zA-Z0-9._%+-]+@bennett\.edu\.in$/, "Use your Bennett University email ID"),
-  password: z.string().min(1, "Password is required"),
+    .email("Enter a valid email address")
+    .transform(val => val.toLowerCase()),
+  password: z
+    .string()
+    .min(1, "Password is required"),
 });
+;
 
 const registerSchema = z.object({
   firstName: z.string().min(2, "Name should be at least 2 characters").max(25),

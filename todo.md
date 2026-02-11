@@ -12,6 +12,7 @@
 - [x] Make Landing Page responsive
 - [x] Create a readme
 - [x] Deploy frontend/backend
-- [ ] Slip deletion but complain stays
+- [x] Slip deletion but complain stays
+- [x] frontend Bug: Admin also requires bennett email 
 - [ ] Mobile landing page glass navbar positioning
 
