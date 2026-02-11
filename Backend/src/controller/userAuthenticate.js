@@ -14,7 +14,7 @@ const register = async (req, res) => {
 
     const existedUser = await User.findOne({ emailId });
     if (existedUser) {
-        throw new ("User with this email id already exist");
+        throw new Error("User with this email id already exist");
     }
 
     const existedBagNumber = await User.findOne({ bagNo });
