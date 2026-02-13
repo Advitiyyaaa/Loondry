@@ -1,5 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axiosClient from "../../utils/axiosClient";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 const REGULAR_FIELDS = [
   { key: "kurta", label: "Kurta" },
@@ -26,6 +29,84 @@ const PAID_FIELDS = [
   { key: "sweater", label: "Sweater" },
 ];
 
+const calcRegular = (clothes = {}) => {
+  const outer =
+    (clothes.kurta || 0) +
+    (clothes.pajama || 0) +
+    (clothes.shirt || 0) +
+    (clothes.tshirt || 0) +
+    (clothes.pant || 0) +
+    (clothes.lower || 0) +
+    (clothes.shorts || 0) +
+    (clothes.bedsheet || 0) +
+    (clothes.pillowCover || 0) +
+    (clothes.towel || 0) +
+    (clothes.duppata || 0);
+
+  const inner =
+    (clothes.underGarments || 0) +
+    (clothes.socks || 0) +
+    (clothes.hankey || 0);
+
+  return { outer, inner, total: outer + inner };
+};
+
+const calcPaid = (paid = {}, custom = []) => {
+  const base =
+    (paid.jacket || 0) +
+    (paid.blanket || 0) +
+    (paid.comforter || 0) +
+    (paid.hoodie || 0) +
+    (paid.sweater || 0);
+
+  const customTotal = custom.reduce((s, i) => s + (i.qty || 0), 0);
+  return base + customTotal;
+};
+
+const slipSchema = z.object({
+  type: z.enum(["Regular", "Paid"]),
+  clothes: z.any(),
+  paidItems: z.any(),
+  customItems: z.any(),
+}).superRefine((data, ctx) => {
+
+  if (data.type === "Regular") {
+    const { outer, inner, total } = calcRegular(data.clothes);
+
+    if (total === 0)
+      ctx.addIssue({ code: "custom", message: "Add at least 1 clothing item", path: ["clothes"]});
+
+    if (outer > 10)
+      ctx.addIssue({ code: "custom", message: "Outer clothes cannot exceed 10", path: ["clothes"]});
+
+    if (inner > 5)
+      ctx.addIssue({ code: "custom", message: "Inner clothes cannot exceed 5", path: ["clothes"]});
+
+    if (total > 15)
+      ctx.addIssue({ code: "custom", message: "No more than 15 clothes can be added", path: ["clothes"]});
+  }
+
+  if (data.type === "Paid") {
+    const total = calcPaid(data.paidItems, data.customItems);
+
+    if (total === 0)
+      ctx.addIssue({ code: "custom", message: "Add at least 1 paid item", path: ["customItems"]});
+
+    if (total > 5)
+      ctx.addIssue({ code: "custom", message: "Total paid items cannot exceed 5", path: ["customItems"]});
+
+    data.customItems?.forEach((item, i) => {
+      if (!item.name?.trim()) {
+        ctx.addIssue({
+          code: "custom",
+          message: `Custom item ${i + 1} name required`,
+          path: ["customItems", i, "name"] ,
+        });
+      }
+    });
+  }
+});
+
 export default function CreateSlipModal({ closeModal, theme, onCreated }) {
   const [type, setType] = useState("Regular");
   const [clothes, setClothes] = useState({});
@@ -33,36 +114,73 @@ export default function CreateSlipModal({ closeModal, theme, onCreated }) {
   const [customItems, setCustomItems] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  
+  const form = useForm({
+    resolver: zodResolver(slipSchema),
+    mode: "onSubmit",
+    reValidateMode: "onSubmit",
+    defaultValues: {
+      type: "Regular",
+      clothes: {},
+      paidItems: {},
+      customItems: [],
+    },
+  });
+
+  useEffect(() => {
+    form.setValue("type", type, { shouldValidate: false });
+    form.setValue("clothes", clothes, { shouldValidate: false });
+    form.setValue("paidItems", paidItems, { shouldValidate: false });
+    form.setValue("customItems", customItems, { shouldValidate: false });
+  }, [type, clothes, paidItems, customItems]);
+
+
+  const getFirstError = (errObj) => {
+    for (const key in errObj) {
+      if (errObj[key]?.message) return errObj[key].message;
+      if (typeof errObj[key] === "object") {
+        const nested = getFirstError(errObj[key]);
+        if (nested) return nested;
+      }
+    }
+  };
 
   const inc = (setFn, key) =>
     setFn((p) => ({ ...p, [key]: (p[key] || 0) + 1 }));
   const dec = (setFn, key) =>
     setFn((p) => ({ ...p, [key]: Math.max(0, (p[key] || 0) - 1) }));
 
-  const handleCreate = async () => {
-    try {
-      setLoading(true);
-      setError("");
+  const handleCreate = form.handleSubmit(
+    async () => {
+      try {
+        setLoading(true);
+        setError("");
 
-      const payload =
-        type === "Regular"
-          ? { type, clothes }
-          : { type, paidItems: { ...paidItems, customItems } };
+        const payload =
+          type === "Regular"
+            ? { type, clothes }
+            : { type, paidItems: { ...paidItems, customItems } };
 
-      await axiosClient.post("/slip/create", payload);
+        await axiosClient.post("/slip/create", payload);
 
-      await onCreated?.();
-      closeModal();
-    } catch (err) {
-      const msg =
-        typeof err?.response?.data === "string"
-          ? err.response.data
-          : err?.response?.data?.message || "Failed to create slip";
-      setError(msg);
-    } finally {
-      setLoading(false);
+        await onCreated?.();
+        closeModal();
+      } catch (err) {
+        const msg =
+          typeof err?.response?.data === "string"
+            ? err.response.data
+            : err?.response?.data?.message || "Failed to create slip";
+
+        setError(msg);
+      } finally {
+        setLoading(false);
+      }
+    },
+
+    (errors) => {
+      setError(getFirstError(errors) || "Invalid slip data");
     }
-  };
+  );
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80">

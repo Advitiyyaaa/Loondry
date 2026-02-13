@@ -33,6 +33,7 @@ export default function RegularSlip({
                 <div className="flex border items-center gap-2">
                 {slip?.status === "Slip-Created" && (
                     <button
+                    type="button"
                     onClick={() => decrement(key)}
                     className="px-2 leading-none"
                     >
@@ -44,6 +45,7 @@ export default function RegularSlip({
 
                 {slip?.status === "Slip-Created" && (
                     <button
+                    type="button"
                     onClick={() => increment(key)}
                     className="px-2 leading-none"
                     >

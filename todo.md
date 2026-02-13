@@ -16,4 +16,4 @@
 - [x] frontend Bug: Admin also requires bennett email 
 - [x] Mobile landing page glass navbar positioning
 - [x] Add uniqueness validation for email and bagNo during registration
-
+- [x] Prevent useless API calls while creating slip and updating it using zod and react hook form

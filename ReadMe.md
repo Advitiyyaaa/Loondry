@@ -1,5 +1,6 @@
 <h1>
-  <img src="./Frontend/public/favicon.svg" alt="Loondry Logo" width="38" style="vertical-align: middle;" />
+  <img src="./Frontend/public/favicon.svg" alt="Loondry Logo" width="38" style="vertical-align: middle; color: white;"
+/>
   <span style="vertical-align: bottom; margin-left: 2px;">Loondry</span>
 </h1>
 
@@ -13,7 +14,7 @@ A full-stack workflow system that digitizes traditional laundry clinic operation
 [![Redis](https://img.shields.io/badge/Cache-Redis-red?style=for-the-badge)](/)
 
 
-[Live Demo](https://loondry.vercel.app) • [Features](#-features) • [Installation](#-installation) • [Deployment](#-deployment)
+[Live Demo](https://loondry.vercel.app) • [Demo Video](https://www.linkedin.com/posts/advitiyaarya_built-loondry-a-full-stack-laundry-management-activity-7425544865385684992-wHuk?utm_source=share&utm_medium=member_desktop&rcm=ACoAAEMzeD0Bl0Snl9jR0Z37hBPHlJBM31TvE5I) • [Features](#-features) • [Installation](#-installation) • [Deployment](#-deployment)
 
 </div>
 

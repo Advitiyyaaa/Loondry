@@ -3,6 +3,31 @@ import { useNavigate } from "react-router";
 import axiosClient from "../../utils/axiosClient";
 import RegularSlip from "./RegularSlip";
 import PaidSlip from "./PaidSlip";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+
+const calcRegular = (clothes = {}) => {
+  const outer =
+    (clothes.kurta || 0) +
+    (clothes.pajama || 0) +
+    (clothes.shirt || 0) +
+    (clothes.tshirt || 0) +
+    (clothes.pant || 0) +
+    (clothes.lower || 0) +
+    (clothes.shorts || 0) +
+    (clothes.bedsheet || 0) +
+    (clothes.pillowCover || 0) +
+    (clothes.towel || 0) +
+    (clothes.duppata || 0);
+
+  const inner =
+    (clothes.underGarments || 0) +
+    (clothes.socks || 0) +
+    (clothes.hankey || 0);
+
+  return { outer, inner, total: outer + inner };
+};
 
 export default function SlipModal({ slipId, closeModal, theme, fetchedSlips, queue }) {
     const [slip, setSlip] = useState(null);
@@ -13,9 +38,33 @@ export default function SlipModal({ slipId, closeModal, theme, fetchedSlips, que
     const [error, setError] = useState("");
     const navigate = useNavigate()
 
+    const updateSchema = z.object({
+        clothes: z.any(),
+        }).superRefine((data, ctx) => {
+        const { outer, inner, total } = calcRegular(data.clothes);
+
+        if (total === 0)
+            ctx.addIssue({ code: "custom", message: "Add at least 1 clothing item", path:["clothes"] });
+
+        if (outer > 10)
+            ctx.addIssue({ code: "custom", message: "Outer clothes cannot exceed 10", path:["clothes"] });
+
+        if (inner > 5)
+            ctx.addIssue({ code: "custom", message: "Inner clothes cannot exceed 5", path:["clothes"] });
+
+        if (total > 15)
+            ctx.addIssue({ code: "custom", message: "No more than 15 clothes allowed", path:["clothes"] });
+    });
+
+    const form = useForm({
+        resolver: zodResolver(updateSchema),
+        mode: "onSubmit",
+    });
+
     useEffect(() => {
         if (slip?.clothes) {
             setLocalClothes(slip.clothes);
+            form.reset({ clothes: slip.clothes });
         }
     }, [slip]);
 
@@ -35,34 +84,49 @@ export default function SlipModal({ slipId, closeModal, theme, fetchedSlips, que
         fetchSlip();
     }, [slipId]);
 
-    const handleUpdate = async () => {
-        try {
-            setUpdating(true);
-            setError("");
-            setSuccess(false);
+    const handleUpdate = form.handleSubmit(
+        async () => {
+            try {
+                if (!hasChanges) {
+                    setSuccess(false);
+                    setError("No changes to update");
+                    return;
+                }
+                setUpdating(true);
+                setError("");
+                setSuccess(false);
 
-            const { data } = await axiosClient.put(`/slip/update/${slipId}`, {
-            clothes: localClothes,
-            });
+                const { data } = await axiosClient.put(`/slip/update/${slipId}`, {
+                    clothes: localClothes,
+                });
 
-            setSlip(data);
-            setLocalClothes(data.clothes);
-            setSuccess(true);
-        } catch (err) {
-            console.error(err);
+                setSlip(data);
+                setLocalClothes(data.clothes);
+                setSuccess(true);
+            } catch (err) {
+                const backendMsg =
+                    typeof err?.response?.data === "string"
+                    ? err.response.data
+                    : err?.response?.data?.message ||
+                        err?.response?.data?.error ||
+                        "Failed to update slip";
 
-            const backendMsg =
-            typeof err?.response?.data === "string"
-                ? err.response.data
-                : err?.response?.data?.message ||
-                err?.response?.data?.error ||
-                "Failed to update slip";
+                setError(backendMsg);
+            } finally {
+                setUpdating(false);
+            }
+        },
 
-            setError(backendMsg);
-        } finally {
-            setUpdating(false);
+        (errors) => {
+            const firstError =
+            errors?.clothes?.message ||
+            Object.values(errors)[0]?.message ||
+            "Invalid clothes data";
+
+            setError(firstError);
         }
-    };
+    );
+
 
     const handleDelete = async () => {
         try {
@@ -119,21 +183,36 @@ export default function SlipModal({ slipId, closeModal, theme, fetchedSlips, que
         return age <= TWO_DAYS;
     };
 
-
     const increment = (key) => {
         setSuccess(false);
-        setLocalClothes((prev) => ({
-            ...prev,
-            [key]: (prev[key] || 0) + 1,
-        }));
+        setError("");
+
+        setLocalClothes(prev => {
+            const updated = {
+                ...prev,
+                [key]: (prev[key] || 0) + 1
+            };
+
+            form.setValue("clothes", updated, { shouldValidate: false });
+
+            return updated;
+        });
     };
 
     const decrement = (key) => {
         setSuccess(false);
-        setLocalClothes((prev) => ({
-            ...prev,
-            [key]: Math.max(0, (prev[key] || 0) - 1),
-        }));
+        setError("");
+
+        setLocalClothes(prev => {
+            const updated = {
+                ...prev,
+                [key]: Math.max(0, (prev[key] || 0) - 1)
+            };
+
+            form.setValue("clothes", updated, { shouldValidate: false });
+
+            return updated;
+        });
     };
 
     const hasChanges = slip?.clothes
@@ -147,133 +226,139 @@ export default function SlipModal({ slipId, closeModal, theme, fetchedSlips, que
             {loading ? (
                 <div className="h-6 w-6 rounded-full border-2 border-white border-t-transparent animate-spin"></div>
             ) : (
+            
             <div className={`border-2 p-3 w-[80%] lg:w-[28%] max-w-md ${theme === "dark"? "bg-black border-white text-white" : "bg-white border-black text-black"}`}>
-                <div className="flex flex-col">    
-                    <div className="flex justify-between items-center p-2">
-                        <p className="font-semibold tracking-tighter sm:tracking-normal sm:font-bold">
-                            <span className="sm:hidden">{formatDateOnly(slip?.createdAt)}</span>
-                            <span className="hidden sm:inline">{formatDayAndDate(slip?.createdAt)}</span>
-                        </p>
-                        <div className="flex gap-4">
-                            <p className="text-sm tracking-tighter sm:tracking-wider sm:font-semibold">{slip?.status}</p>
-                            <p className="text-sm tracking-tighter sm:tracking-wider sm:font-semibold">{slip?.type}</p>
-                        </div>
-                    </div>
-                    {slip?.status === "Completed" && slip?.completedAt && (
-                        <div className="px-2 pb-1">
-                            <span className="text-sm sm:hidden">
-                                Completed: {formatDateOnly(slip.completedAt)}
-                            </span>
-                            <span className="text-sm hidden sm:inline">
-                                Completed On: {formatDayAndDate(slip.completedAt)}
-                            </span>
-                        </div>
-                    )}
-                </div>    
-                <div className="px-2 text-sm">
-                    {slip?.type === "Regular" && (
-                        <RegularSlip
-                            slip={slip}
-                            localClothes={localClothes}
-                            increment={increment}
-                            decrement={decrement}
-                        />
-                    )}
-
-                    {slip?.type === "Paid" && <PaidSlip slip={slip} />}
-
-                </div>
-                {error && (
-                    <div className={`w-[96%] mx-auto mt-2 border border-dashed border-red-600 text-red-600 px-3 py-2 text-xs tracking-wide`}>
-                        {error}
-                    </div>
-                )}
-                {success && !error && (
-                    <div className={`w-[96%] mx-auto border mt-2 border-dashed border-green-600 text-green-600 px-3 py-2 text-xs tracking-wide`}>
-                        Slip Updated Successfully
-                    </div>
-                )}
-                {(slip?.status === "At Clinic" || slip?.status === "Ready for Pickup") && (
-                    <div className="mt-2 border border-dashed mx-2 py-2 text-center">
-                        <p className="text-[10px] uppercase tracking-widest opacity-60">
-                            Pickup OTP
-                        </p>
-                        <p className="mt-1 text-lg font-bold tracking-wider">
-                            {slip?.otp}
-                        </p>
-                    </div>
-                )}
-
-                <div className={`flex justify-between mt-3 items-center px-2 ${slip?.type!=="Regular" && slip?.status!=="Slip-Created" && "w-[97.5%] mx-auto"}`}>
-                    <div className="flex gap-1 md:gap-2"> 
-                        {(slip?.status !== "At Clinic" && slip?.status !== "Ready for Pickup") && (
-                            <div className="dropdown dropdown-top">
-                                <div
-                                    tabIndex={0}
-                                    role="button"
-                                    className="border-2 px-3 py-1 text-xs hover:bg-red-600"
-                                >
-                                    Delete
-                                </div>
-
-                                <div
-                                    tabIndex={0}
-                                    className={`dropdown-content z-10 mb-2 w-64 border bg-white text-black ${theme === "dark" && ("dark:bg-black dark:text-white")}`}>
-                                    <div className="p-3 border space-y-3">
-                                        <p className="text-xs opacity-80">
-                                            Are you sure you want to delete this slip? This action cannot be undone.
-                                        </p>
-
-                                        <div className="flex justify-end gap-2">
-                                            <button
-                                            onClick={() => document.activeElement?.blur()}
-                                            className={`border px-2 py-1 text-xs hover:bg-black hover:text-white ${theme==='dark' && ("dark:hover:bg-white dark:hover:text-black")}`}
-                                            >
-                                                No
-                                            </button>
-                                            <button
-                                            onClick={()=>{
-                                                handleDelete();
-                                                document.activeElement?.blur();
-                                            }}
-                                            className="border px-2 py-1 text-xs hover:bg-red-600"
-                                            >
-                                            Yes
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>  
+                <form onSubmit={handleUpdate}>  
+                    <div className="flex flex-col">    
+                        <div className="flex justify-between items-center p-2">
+                            <p className="font-semibold tracking-tighter sm:tracking-normal sm:font-bold">
+                                <span className="sm:hidden">{formatDateOnly(slip?.createdAt)}</span>
+                                <span className="hidden sm:inline">{formatDayAndDate(slip?.createdAt)}</span>
+                            </p>
+                            <div className="flex gap-4">
+                                <p className="text-sm tracking-tighter sm:tracking-wider sm:font-semibold">{slip?.status}</p>
+                                <p className="text-sm tracking-tighter sm:tracking-wider sm:font-semibold">{slip?.type}</p>
                             </div>
-                            
-                        )} 
-                        {canRaiseComplaint() && (
-                            <button
-                                onClick={() => navigate(`/complain/new?slip=${slip._id}`)}
-                                className="border-2 px-3 py-1 text-xs hover:bg-yellow-500"
-                            >
-                                <span className="block sm:hidden">Complain</span>
-                                <span className="hidden sm:block">Raise Complaint</span>
-                            </button>
-                        )}  
-
-                        {slip?.status === "Slip-Created" && slip?.type==="Regular" && (
-                            <button
-                            onClick={handleUpdate}
-                            disabled={updating || !hasChanges}
-                            className="border-2 px-3 py-1 text-xs hover:bg-blue-700"
-                            >
-                                {updating ? "Updating..." : "Update"}
-                            </button>
+                        </div>
+                        {slip?.status === "Completed" && slip?.completedAt && (
+                            <div className="px-2 pb-1">
+                                <span className="text-sm sm:hidden">
+                                    Completed: {formatDateOnly(slip.completedAt)}
+                                </span>
+                                <span className="text-sm hidden sm:inline">
+                                    Completed On: {formatDayAndDate(slip.completedAt)}
+                                </span>
+                            </div>
                         )}
+                    </div>    
+                    <div className="px-2 text-sm">
+                        {slip?.type === "Regular" && (
+                            <RegularSlip
+                                slip={slip}
+                                localClothes={localClothes}
+                                increment={increment}
+                                decrement={decrement}
+                            />
+                        )}
+
+                        {slip?.type === "Paid" && <PaidSlip slip={slip} />}
+
                     </div>
-                    <button
-                        onClick={closeModal}
-                        className={`border-2 px-3 py-1 hover:bg-black text-xs hover:text-white ${theme==='dark' && ("dark:hover:bg-white dark:hover:text-black")}`}
-                    >
-                        Close
-                    </button>
-                </div>
-                
+                    {error && (
+                        <div className={`w-[96%] mx-auto mt-2 border border-dashed border-red-600 text-red-600 px-3 py-2 text-xs tracking-wide`}>
+                            {error}
+                        </div>
+                    )}
+                    {success && !error && (
+                        <div className={`w-[96%] mx-auto border mt-2 border-dashed border-green-600 text-green-600 px-3 py-2 text-xs tracking-wide`}>
+                            Slip Updated Successfully
+                        </div>
+                    )}
+                    {(slip?.status === "At Clinic" || slip?.status === "Ready for Pickup") && (
+                        <div className="mt-2 border border-dashed mx-2 py-2 text-center">
+                            <p className="text-[10px] uppercase tracking-widest opacity-60">
+                                Pickup OTP
+                            </p>
+                            <p className="mt-1 text-lg font-bold tracking-wider">
+                                {slip?.otp}
+                            </p>
+                        </div>
+                    )}
+
+                    <div className={`flex justify-between mt-3 items-center px-2 ${slip?.type!=="Regular" && slip?.status!=="Slip-Created" && "w-[97.5%] mx-auto"}`}>
+                        <div className="flex gap-1 md:gap-2"> 
+                            {(slip?.status !== "At Clinic" && slip?.status !== "Ready for Pickup") && (
+                                <div className="dropdown dropdown-top">
+                                    <div
+                                        tabIndex={0}
+                                        role="button"
+                                        className="border-2 px-3 py-1 text-xs hover:bg-red-600"
+                                    >
+                                        Delete
+                                    </div>
+
+                                    <div
+                                        tabIndex={0}
+                                        className={`dropdown-content z-10 mb-2 w-64 border bg-white text-black ${theme === "dark" && ("dark:bg-black dark:text-white")}`}>
+                                        <div className="p-3 border space-y-3">
+                                            <p className="text-xs opacity-80">
+                                                Are you sure you want to delete this slip? This action cannot be undone.
+                                            </p>
+
+                                            <div className="flex justify-end gap-2">
+                                                <button
+                                                type="button"
+                                                onClick={() => document.activeElement?.blur()}
+                                                className={`border px-2 py-1 text-xs hover:bg-black hover:text-white ${theme==='dark' && ("dark:hover:bg-white dark:hover:text-black")}`}
+                                                >
+                                                    No
+                                                </button>
+                                                <button
+                                                type="button"
+                                                onClick={()=>{
+                                                    handleDelete();
+                                                    document.activeElement?.blur();
+                                                }}
+                                                className="border px-2 py-1 text-xs hover:bg-red-600"
+                                                >
+                                                Yes
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>  
+                                </div>
+                                
+                            )} 
+                            {canRaiseComplaint() && (
+                                <button
+                                    type="button"
+                                    onClick={() => navigate(`/complain/new?slip=${slip._id}`)}
+                                    className="border-2 px-3 py-1 text-xs hover:bg-yellow-500"
+                                >
+                                    <span className="block sm:hidden">Complain</span>
+                                    <span className="hidden sm:block">Raise Complaint</span>
+                                </button>
+                            )}  
+
+                            {slip?.status === "Slip-Created" && slip?.type==="Regular" && (
+                                <button
+                                type="submit"
+                                disabled={updating}
+                                className="border-2 px-3 py-1 text-xs hover:bg-blue-700"
+                                >
+                                    {updating ? "Updating..." : "Update"}
+                                </button>
+                            )}
+                        </div>
+                        <button
+                            type="button"
+                            onClick={closeModal}
+                            className={`border-2 px-3 py-1 hover:bg-black text-xs hover:text-white ${theme==='dark' && ("dark:hover:bg-white dark:hover:text-black")}`}
+                        >
+                            Close
+                        </button>
+                    </div>
+                </form>    
             </div>
             )}
         </div>
